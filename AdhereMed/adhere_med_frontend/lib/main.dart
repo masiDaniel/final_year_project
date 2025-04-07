@@ -1,5 +1,9 @@
+import 'package:adhere_med_frontend/screens/home_page.dart';
+import 'package:adhere_med_frontend/screens/notifications.dart';
 import 'package:adhere_med_frontend/screens/sign_in.dart';
 import 'package:adhere_med_frontend/screens/sign_up.dart';
+import 'package:adhere_med_frontend/screens/symptomps.dart';
+import 'package:adhere_med_frontend/screens/symptoms_history.dart';
 import 'package:adhere_med_frontend/themes.dart';
 import 'package:flutter/material.dart';
 
@@ -21,6 +25,10 @@ class MyApp extends StatelessWidget {
       routes: {
         '/sign_in': (context) => SignInScreen(),
         '/sign_up': (context) => SignUpScreen(),
+        '/home_page': (context) => HomePage(),
+        '/notifications': (context) => Notifications(),
+        '/symptoms': (context) => SymptomsScreen(),
+        '/symptomshistory': (context) => SymptomsHistory(),
       },
     );
   }
@@ -31,52 +39,95 @@ class MyHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final theme = Theme.of(context);
+
     return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Transforming \nHealthcare!',
-            style: TextStyle(fontSize: 30, fontWeight: FontWeight.w600),
+      backgroundColor: theme.scaffoldBackgroundColor,
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Title
+                Text(
+                  'Transforming\nHealthcare!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.teal[800],
+                  ),
+                ),
+
+                const SizedBox(height: 40),
+
+                // Subtitle
+                Text(
+                  'One step at a time.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.grey[700],
+                  ),
+                ),
+
+                const SizedBox(height: 60),
+
+                // Action Buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Sign Up Button
+                    SizedBox(
+                      width: screenWidth * 0.35,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          backgroundColor: Colors.teal,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/sign_up');
+                        },
+                        child: const Text(
+                          "Sign Up",
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    // Sign In Button
+                    SizedBox(
+                      width: screenWidth * 0.35,
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          side: BorderSide(color: Colors.teal),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/sign_in');
+                        },
+                        child: const Text(
+                          "Sign In",
+                          style: TextStyle(fontSize: 18, color: Colors.teal),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 400),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Column(
-                children: [
-                  Text(
-                    ' One step',
-                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 200),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/sign_up');
-                    },
-                    child: Text("sign Up"),
-                  ),
-                ],
-              ),
-              Column(
-                children: [
-                  Text(
-                    ' at a time',
-                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 100),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/sign_in');
-                    },
-                    child: Text("sign in"),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ],
+        ),
       ),
     );
   }

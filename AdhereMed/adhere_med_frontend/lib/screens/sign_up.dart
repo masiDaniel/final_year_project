@@ -68,6 +68,19 @@ class SignUpScreen extends StatelessWidget {
               ),
               SizedBox(height: 40),
               Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushNamed(context, '/sign_in');
+                    },
+                    child: Text("Sign In"),
+                  ),
+                  SizedBox(width: 10),
+                ],
+              ),
+              SizedBox(height: 40),
+              Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   ElevatedButton(

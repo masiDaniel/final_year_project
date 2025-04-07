@@ -8,49 +8,79 @@ class SignInScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "Your Health,\nOur Priority.",
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.w600),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: 400,
+                minHeight: constraints.maxHeight,
               ),
-              const SizedBox(height: 30),
+              child: IntrinsicHeight(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Your Health,\nOur Priority.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 30),
 
-              CustomTextField(
-                controller: emailController,
-                hintText: "Enter your email",
-                icon: Icons.email,
-                onTap: () {
-                  print("Email field tapped");
-                },
+                    CustomTextField(
+                      controller: emailController,
+                      hintText: "Enter your email",
+                      icon: Icons.email,
+                      onTap: () {
+                        print("Email field tapped");
+                      },
+                    ),
+                    const SizedBox(height: 20),
+
+                    CustomTextField(
+                      controller: passwordController,
+                      hintText: "Enter your password",
+                      icon: Icons.lock,
+                      isPassword: true,
+                    ),
+                    const SizedBox(height: 40),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pushNamed(context, '/sign_up');
+                          },
+                          child: Text("Sign up"),
+                        ),
+                        SizedBox(width: 10),
+                        Text("Forgot password!"),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/home_page');
+                            print("Email: ${emailController.text}");
+                            print("Password: ${passwordController.text}");
+                          },
+                          child: const Text("Sign In"),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              SizedBox(height: 20),
-              CustomTextField(
-                controller: passwordController,
-                hintText: "Enter your password",
-                icon: Icons.lock,
-                isPassword: true,
-              ),
-              SizedBox(height: 40),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      print("Email: ${emailController.text}");
-                      print("Password: ${passwordController.text}");
-                    },
-                    child: Text("Sign In"),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
