@@ -34,9 +34,7 @@ class SignInScreen extends StatelessWidget {
                       controller: emailController,
                       hintText: "Enter your email",
                       icon: Icons.email,
-                      onTap: () {
-                        print("Email field tapped");
-                      },
+                      onTap: () {},
                     ),
                     const SizedBox(height: 20),
 
