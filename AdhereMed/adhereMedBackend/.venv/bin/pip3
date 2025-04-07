@@ -1,4 +1,4 @@
-#!/home/azte-c/final_year_projects/AdhereMed/adhereMedBackend/.venv/bin/python3
+#!/home/azte-c/final_year_project/AdhereMed/adhereMedBackend/.venv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys

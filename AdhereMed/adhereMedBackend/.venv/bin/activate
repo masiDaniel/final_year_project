@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV=/home/azte-c/final_year_projects/AdhereMed/adhereMedBackend/.venv
+VIRTUAL_ENV=/home/azte-c/final_year_project/AdhereMed/adhereMedBackend/.venv
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
