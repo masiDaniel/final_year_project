@@ -16,16 +16,10 @@ class CustomButton extends StatelessWidget {
         width: 100,
         margin: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-          color: Colors.blue,
+          color: Color(0xFF0D557F),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        child: Text(label, style: const TextStyle(color: Colors.white)),
       ),
     );
   }

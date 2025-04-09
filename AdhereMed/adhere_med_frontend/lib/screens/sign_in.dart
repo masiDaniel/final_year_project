@@ -32,7 +32,7 @@ class SignInScreen extends StatelessWidget {
 
                     CustomTextField(
                       controller: emailController,
-                      hintText: "Enter your email",
+                      hintText: "Enter your em ail",
                       icon: Icons.email,
                       onTap: () {},
                     ),
