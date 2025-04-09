@@ -134,7 +134,7 @@ class _HomePageState extends State<HomePage> {
                     },
                   ),
                   CustomButton(
-                    label: 'Appointments',
+                    label: 'History',
                     onTap: () {
                       Navigator.pushNamed(context, '/symptomshistory');
                     },
@@ -149,6 +149,18 @@ class _HomePageState extends State<HomePage> {
                     label: 'calender',
                     onTap: () {
                       Navigator.pushNamed(context, '/calender_page');
+                    },
+                  ),
+                  CustomButton(
+                    label: 'Appointments',
+                    onTap: () {
+                      Navigator.pushNamed(context, '/appointment_page');
+                    },
+                  ),
+                  CustomButton(
+                    label: 'Doctor',
+                    onTap: () {
+                      Navigator.pushNamed(context, '/doctors_home_page');
                     },
                   ),
                 ],

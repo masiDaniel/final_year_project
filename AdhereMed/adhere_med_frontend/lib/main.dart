@@ -1,4 +1,6 @@
+import 'package:adhere_med_frontend/screens/appointments_page.dart';
 import 'package:adhere_med_frontend/screens/calender_screen.dart';
+import 'package:adhere_med_frontend/screens/doctors_home_page.dart';
 import 'package:adhere_med_frontend/screens/home_page.dart';
 import 'package:adhere_med_frontend/screens/medications_page.dart';
 import 'package:adhere_med_frontend/screens/notifications.dart';
@@ -35,6 +37,8 @@ class MyApp extends StatelessWidget {
         '/prescription_page': (context) => PrescriptionPage(),
         '/medication_page': (context) => MedicationsPage(),
         '/calender_page': (context) => CalendarScreen(),
+        '/appointment_page': (context) => AppointmentsPage(),
+        '/doctors_home_page': (context) => DoctorsHomePage(),
       },
     );
   }
