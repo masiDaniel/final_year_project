@@ -253,6 +253,81 @@ class _DoctorsHomePageState extends State<DoctorsHomePage> {
                   color: Color(0xFF0D557F),
                 ),
               ),
+
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      print("submit symptomps");
+                      Navigator.pushNamed(
+                        context,
+                        '/doctors_prescription_page',
+                      );
+                    },
+                    child: Container(
+                      height: 30,
+                      width: 100,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF85A9BD),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Center(
+                        child: Text(
+                          "Prescribe",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  GestureDetector(
+                    onTap: () {
+                      print("submit symptomps");
+                      Navigator.pushNamed(
+                        context,
+                        '/all_doctors_prescription_page',
+                      );
+                    },
+                    child: Container(
+                      height: 30,
+                      width: 100,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF85A9BD),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Center(
+                        child: Text(
+                          "Prescriptions",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  GestureDetector(
+                    onTap: () {
+                      print("submit symptomps");
+                      Navigator.pushNamed(context, '/doctors_all_patient_page');
+                    },
+                    child: Container(
+                      height: 30,
+                      width: 100,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF85A9BD),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Center(
+                        child: Text(
+                          "Patients",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),

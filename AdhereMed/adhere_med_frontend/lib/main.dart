@@ -1,9 +1,13 @@
+import 'package:adhere_med_frontend/screens/all_prescription_doctor_page.dart';
 import 'package:adhere_med_frontend/screens/appointments_page.dart';
 import 'package:adhere_med_frontend/screens/calender_screen.dart';
+import 'package:adhere_med_frontend/screens/doctor_prescription_page.dart';
 import 'package:adhere_med_frontend/screens/doctors_home_page.dart';
+import 'package:adhere_med_frontend/screens/doctors_patient_page.dart';
 import 'package:adhere_med_frontend/screens/home_page.dart';
 import 'package:adhere_med_frontend/screens/medications_page.dart';
 import 'package:adhere_med_frontend/screens/notifications.dart';
+import 'package:adhere_med_frontend/screens/patient_details_page.dart';
 import 'package:adhere_med_frontend/screens/prescription_page.dart';
 import 'package:adhere_med_frontend/screens/sign_in.dart';
 import 'package:adhere_med_frontend/screens/sign_up.dart';
@@ -39,6 +43,10 @@ class MyApp extends StatelessWidget {
         '/calender_page': (context) => CalendarScreen(),
         '/appointment_page': (context) => AppointmentsPage(),
         '/doctors_home_page': (context) => DoctorsHomePage(),
+        '/doctors_prescription_page': (context) => DoctorPrescriptionPage(),
+        '/all_doctors_prescription_page': (context) => AllPrescriptionPage(),
+        '/doctors_all_patient_page': (context) => PatientsPage(),
+        '/doctors_patient_details_page': (context) => PatientDetailsPage(),
       },
     );
   }
