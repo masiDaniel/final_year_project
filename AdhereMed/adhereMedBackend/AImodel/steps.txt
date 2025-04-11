@@ -1,0 +1,88 @@
+Step 10: Use the Model for Prediction
+Once the model is saved, you can use it to make predictions for new data.
+
+python
+Copy
+Edit
+# Load the saved model (if needed)
+model = tf.keras.models.load_model('adherence_predictor_model.h5')
+
+# Example: Predict adherence for a new patient (new AdherencePercentage)
+new_data = pd.DataFrame({'AdherencePercentage': [75]})
+new_data_scaled = scaler.transform(new_data)
+
+# Predict if the patient will adhere (1) or not (0)
+prediction = model.predict(new_data_scaled)
+print(f"Prediction (Adherent = 1, Non-adherent = 0): {int(round(prediction[0][0]))}")
+Step 11: Further Improvements
+Feature Engineering: Consider adding more features (e.g., DoctorNotes or SideEffects) by using techniques like text vectorization (e.g., TF-IDF or Word2Vec for DoctorNotes).
+
+Hyperparameter Tuning: Fine-tune the model architecture (e.g., number of neurons, layers, batch size, etc.).
+
+Cross-validation: Use k-fold cross-validation for better performance evaluation.
+
+Step 12: Deploy the Model (Optional)
+If you want to deploy the model for real-time predictions, you can create an API using Flask or Django to interact with the model.
+
+For example, using Flask:
+
+bash
+Copy
+Edit
+pip install flask
+python
+Copy
+Edit
+from flask import Flask, request, jsonify
+import tensorflow as tf
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+
+# Initialize Flask app
+app = Flask(__name__)
+
+# Load the model
+model = tf.keras.models.load_model('adherence_predictor_model.h5')
+
+# Load the scaler (make sure it's saved earlier)
+scaler = StandardScaler()
+scaler.fit([[75]])  # A simple dummy fit
+
+@app.route('/predict', methods=['POST'])
+def predict():
+    data = request.get_json()  # Expect JSON data with 'AdherencePercentage'
+    adherent_percentage = data['AdherencePercentage']
+    new_data = pd.DataFrame({'AdherencePercentage': [adherent_percentage]})
+    new_data_scaled = scaler.transform(new_data)
+    
+    # Make prediction
+    prediction = model.predict(new_data_scaled)
+    
+    # Return prediction as JSON
+    return jsonify({'prediction': int(round(prediction[0][0]))})
+
+if __name__ == '__main__':
+    app.run(debug=True)
+Step 13: Test the API
+You can use tools like Postman or cURL to test the API by sending a POST request to http://localhost:5000/predict with the AdherencePercentage in the body.
+
+By following these steps, you’ll have a model that predicts medication adherence, which can later be used for deployment, predictions, or further improvements based on additional features or data.
+
+
+Next Step (Prediction):
+Once you have the model trained and saved, you can use it to make predictions on new data, as shown below:
+
+python
+Copy
+Edit
+# Load the saved model (if needed)
+model = tf.keras.models.load_model('adherence_predictor_model.h5')
+
+# Predict adherence for a new patient (AdherencePercentage = 75)
+new_data = pd.DataFrame({'AdherencePercentage': [75]})
+new_data_scaled = scaler.transform(new_data)
+
+# Make prediction
+prediction = model.predict(new_data_scaled)
+print(f"Prediction (Adherent = 1, Non-adherent = 0): {int(round(prediction[0][0]))}")
+This will load the saved model and predict whether a patient with AdherencePercentage = 75% is adherent (0 or 1).
