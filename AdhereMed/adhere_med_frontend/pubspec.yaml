@@ -37,6 +37,7 @@ dependencies:
   intl: ^0.20.2
   table_calendar: ^3.2.0
   fl_chart: ^0.70.2
+  flutter_native_splash: ^2.4.6
 
 dev_dependencies:
   flutter_test:
@@ -90,3 +91,15 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+
+
+flutter_native_splash:
+  android: true
+  ios: true
+  web: false
+  image: assets/images/splash.png
+  color: "#FFFFFF"
+  android_12:
+    image: assets/images/splash.png
+    color: "#FFFFFF"
