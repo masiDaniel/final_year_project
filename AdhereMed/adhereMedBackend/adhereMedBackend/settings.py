@@ -121,6 +121,8 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
+# CUSTOM USER
+AUTH_USER_MODEL = "core.CustomUser"
 
 
 # Static files (CSS, JavaScript, Images)
