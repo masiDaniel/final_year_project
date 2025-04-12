@@ -12,7 +12,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        fields = ['username', 'email', 'password', 'user_type', 'license_no', 'member_no', 'business_no']
+        fields = ['username', 'email', 'user_type', 'license_no', 'member_no', 'business_no']
 
     def create(self, validated_data):
         # Create the user
@@ -68,9 +68,16 @@ class CustomUserSerializer(serializers.ModelSerializer):
         return user
 
 class DoctorSerializer(serializers.ModelSerializer):
+    user_details = serializers.SerializerMethodField()  
+
     class Meta:
         model = Doctor
-        fields = "__all__"
+        fields = "__all__" 
+
+    def get_user_details(self, obj):
+       
+        user = obj.user_id
+        return CustomUserSerializer(user).data  
 
 class PatientSerializer(serializers.ModelSerializer):
     class Meta:
