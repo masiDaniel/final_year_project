@@ -90,9 +90,26 @@ class _SymptomsHistoryState extends State<SymptomsHistory> {
                         Expanded(
                           child: Padding(
                             padding: const EdgeInsets.only(bottom: 20),
-                            child: Text(
-                              symptom.description,
-                              style: const TextStyle(fontSize: 16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  symptom.description,
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                                const SizedBox(
+                                  height: 6,
+                                ), // spacing between description and time
+                                Text(
+                                  DateFormat(
+                                    'yyyy-MM-dd HH:mm',
+                                  ).format(symptom.date),
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),

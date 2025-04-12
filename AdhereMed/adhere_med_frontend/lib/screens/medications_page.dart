@@ -1,3 +1,4 @@
+import 'package:adhere_med_frontend/screens/full_screen.dart';
 import 'package:flutter/material.dart';
 
 class MedicationsPage extends StatefulWidget {
@@ -23,7 +24,7 @@ class _PrescriptionPageState extends State<MedicationsPage> {
                 width: double.infinity,
                 decoration: BoxDecoration(
                   color: Color(0xFF0D557F),
-                  borderRadius: BorderRadius.circular(12), // Smoother corners
+                  borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black26,
@@ -33,59 +34,54 @@ class _PrescriptionPageState extends State<MedicationsPage> {
                   ],
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(
-                    16.0,
-                  ), // Added padding for better spacing
+                  padding: const EdgeInsets.all(16.0),
                   child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start, // Align items to the left
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Image section with better sizing
                       Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.all(
-                            8.0,
-                          ), // Added padding for better spacing
-                          child: Container(
-                            height:
-                                150, // Increased height for better visibility of the image
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(
-                                12,
-                              ), // Rounded corners for the container
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 8,
-                                  offset: Offset(
-                                    0,
-                                    4,
-                                  ), // Soft shadow for depth effect
+                          padding: const EdgeInsets.all(8.0),
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (_) => FullImageScreen(
+                                        imagePath:
+                                            'assets/images/medical_image.jpeg',
+                                      ),
                                 ),
-                              ],
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(
-                                12,
-                              ), // Ensure the image is clipped with rounded corners
-                              child: Image.asset(
-                                'assets/images/medical_image.jpeg',
-                                fit:
-                                    BoxFit
-                                        .cover, // Ensures the image covers the container's space
+                              );
+                            },
+                            child: Container(
+                              height: 150,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black12,
+                                    blurRadius: 8,
+                                    offset: Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Image.asset(
+                                  'assets/images/medical_image.jpeg',
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
 
-                      const SizedBox(height: 16), // Added space after the image
-                      // Medication Name section (Amoxil)
+                      const SizedBox(height: 16),
                       Row(
-                        mainAxisAlignment:
-                            MainAxisAlignment
-                                .end, // Align the text to the right
+                        mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           Text(
                             "Amoxil",
@@ -98,9 +94,7 @@ class _PrescriptionPageState extends State<MedicationsPage> {
                         ],
                       ),
 
-                      const SizedBox(
-                        height: 16,
-                      ), // Spacing between name and dates
+                      const SizedBox(height: 16),
 
                       Row(
                         children: [
@@ -157,35 +151,205 @@ class _PrescriptionPageState extends State<MedicationsPage> {
                 width: double.infinity,
                 decoration: BoxDecoration(
                   color: Color(0xFF0D557F),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 6,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
                 ),
-
                 child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(16.0),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Container(
-                                height: 100,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (_) => FullImageScreen(
+                                        imagePath:
+                                            'assets/images/medical_image.jpeg',
+                                      ),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              height: 150,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black12,
+                                    blurRadius: 8,
+                                    offset: Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
                                 child: Image.asset(
                                   'assets/images/medical_image.jpeg',
-                                  fit:
-                                      BoxFit
-                                          .cover, // Makes it cover the entire container
+                                  fit: BoxFit.cover,
                                 ),
                               ),
                             ),
-                          ],
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 20),
+
+                      const SizedBox(height: 16),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
-                        children: [Text("Amoxil")],
+                        children: [
+                          Text(
+                            "Amoxil",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
                       ),
+
+                      const SizedBox(height: 16),
+
+                      Row(
+                        children: [
+                          Text("Date"),
+                          Spacer(),
+                          Text("3rd May 2024"),
+                        ],
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      Row(
+                        children: [
+                          Text("Date"),
+                          Spacer(),
+                          Text("3rd May 2024"),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+
+                      Row(
+                        children: [
+                          Text("Date"),
+                          Spacer(),
+                          Text("3rd May 2024"),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+
+                      Row(
+                        children: [
+                          Text("Date"),
+                          Spacer(),
+                          Text("3rd May 2024"),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+
+                      Row(
+                        children: [
+                          Text("Date"),
+                          Spacer(),
+                          Text("3rd May 2024"),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 30),
+
+              Container(
+                height: 400,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Color(0xFF0D557F),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 6,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (_) => FullImageScreen(
+                                        imagePath:
+                                            'assets/images/medical_image.jpeg',
+                                      ),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              height: 150,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black12,
+                                    blurRadius: 8,
+                                    offset: Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Image.asset(
+                                  'assets/images/medical_image.jpeg',
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            "Amoxil",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 16),
 
                       Row(
                         children: [
