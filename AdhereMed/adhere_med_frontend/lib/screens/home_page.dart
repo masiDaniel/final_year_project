@@ -125,7 +125,13 @@ class _HomePageState extends State<HomePage> {
                     CustomButton(
                       label: 'Medication',
                       onTap: () {
-                        Navigator.pushNamed(context, '/medication_page');
+                        Navigator.pushNamed(context, '/medications');
+                      },
+                    ),
+                    CustomButton(
+                      label: 'Details',
+                      onTap: () {
+                        Navigator.pushNamed(context, '/doctor_details_page');
                       },
                     ),
                     CustomButton(
