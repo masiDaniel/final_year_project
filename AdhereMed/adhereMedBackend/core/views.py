@@ -3,8 +3,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
-from .serializers import CustomUserSerializer, DoctorSerializer, PatientSerializer
-from .models import CareGiver, Doctor, Patient
+from .serializers import CustomUserSerializer, DoctorSerializer, PatientSerializer, SymptomSerializer
+from .models import CareGiver, Doctor, Patient, Symptom
 from pharmacies.models import Pharmacy
 from django.db import IntegrityError, transaction
 from django.conf import settings
@@ -123,4 +123,21 @@ class DoctorUpdateAPIView(APIView):
         if serializer.is_valid():
             serializer.save()  # Save the updated patient record
             return Response(serializer.data)  # Return the updated patient data
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class SymptomAPIView(APIView):
+
+    def get(self, request):
+        # symptoms = Symptom.objects.filter(user=request.user).order_by('-created_at')
+        symptoms = Symptom.objects.all()
+        serializer = SymptomSerializer(symptoms, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        serializer = SymptomSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()  # attach current user refactor on this
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

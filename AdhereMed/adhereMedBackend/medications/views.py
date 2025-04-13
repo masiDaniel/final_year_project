@@ -2,8 +2,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import Q
-from .models import Medication, PrescriptionMedication
-from .serializers import MedicationSerializer, PrescriptionMedicationSerializer
+from .models import Medication, MedicationAdherence, PrescriptionMedication
+from .serializers import MedicationAdherenceSerializer, MedicationSerializer, PrescriptionMedicationSerializer
 from rest_framework.generics import get_object_or_404
 
 class MedicationAPIView(APIView):
@@ -71,3 +71,42 @@ class PrescriptionMedicationAPIView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class MedicationAdherenceAPIView(APIView):
+
+    # Mark medication as taken
+    def post(self, request, medication_id=None):
+        try:
+            # Get the medication object
+            medication = Medication.objects.get(id=medication_id)
+            
+            # Create an adherence record
+            adherence = MedicationAdherence.objects.create(
+                medication=medication,
+                is_taken=True  # Mark as taken
+            )
+
+            # Return the created adherence record in the response
+            return Response(MedicationAdherenceSerializer(adherence).data, status=status.HTTP_201_CREATED)
+        
+        except Medication.DoesNotExist:
+            return Response({"error": "Medication not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    # Calculate medication adherence percentage
+    def get(self, request, medication_id=None):
+        try:
+            # Get the medication object
+            medication = Medication.objects.get(id=medication_id)
+
+            # Calculate total doses and doses taken
+            total_doses = MedicationAdherence.objects.filter(medication=medication).count()
+            doses_taken = MedicationAdherence.objects.filter(medication=medication, is_taken=True).count()
+
+            # Calculate adherence percentage
+            adherence_percentage = (doses_taken / total_doses) * 100 if total_doses else 0
+
+            # Return adherence percentage in the response
+            return Response({'adherence_percentage': adherence_percentage}, status=status.HTTP_200_OK)
+        
+        except Medication.DoesNotExist:
+            return Response({"error": "Medication not found"}, status=status.HTTP_404_NOT_FOUND)

@@ -53,3 +53,22 @@ class CareGiver(models.Model):
     def __str__(self) -> str:
         return self.user_id.get_full_name()
     
+
+class Symptom(models.Model):
+    user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
+    
+    main_symptom = models.CharField(max_length=255)
+    duration = models.CharField(max_length=100, help_text="e.g., 2 days, 1 week")
+    severity = models.CharField(max_length=50, choices=[
+        ('mild', 'Mild'),
+        ('moderate', 'Moderate'),
+        ('severe', 'Severe')
+    ])
+    allergies = models.TextField(blank=True, help_text="Any known allergies")
+    travel_history = models.TextField(blank=True, help_text="Recent travel history if any")
+    additional_description = models.TextField(blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username}'s symptom - {self.main_symptom} ({self.created_at.date()})"
