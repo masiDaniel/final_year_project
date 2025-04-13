@@ -9,6 +9,7 @@ class PrescriptionMedication {
   final bool evening;
   final int prescription;
   final int medication;
+  final bool isActive;
 
   PrescriptionMedication({
     required this.id,
@@ -21,7 +22,21 @@ class PrescriptionMedication {
     required this.evening,
     required this.prescription,
     required this.medication,
+    required this.isActive,
   });
+
+  bool getTimeBool(String time) {
+    switch (time) {
+      case 'morning':
+        return morning;
+      case 'afternoon':
+        return afternoon;
+      case 'evening':
+        return evening;
+      default:
+        return false;
+    }
+  }
 
   factory PrescriptionMedication.fromJson(Map<String, dynamic> json) {
     return PrescriptionMedication(
@@ -35,6 +50,7 @@ class PrescriptionMedication {
       evening: json['evening'],
       prescription: json['prescription'],
       medication: json['medication'],
+      isActive: json['is_active'],
     );
   }
 

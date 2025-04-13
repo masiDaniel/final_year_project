@@ -1,5 +1,5 @@
 import 'package:adhere_med_frontend/models/prescribed_medication.dart';
-import 'package:adhere_med_frontend/services/prescription_service.dart';
+import 'package:adhere_med_frontend/services/prescribed_medications_service.dart';
 import 'package:flutter/material.dart';
 
 class MedicationList extends StatefulWidget {

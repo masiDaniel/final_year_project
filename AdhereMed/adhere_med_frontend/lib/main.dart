@@ -40,7 +40,7 @@ class MyApp extends StatelessWidget {
         '/notifications': (context) => Notifications(),
         '/symptoms': (context) => SymptomsScreen(),
         '/symptomshistory': (context) => SymptomsHistory(),
-        '/prescription_page': (context) => PrescriptionPage(),
+        // '/prescription_page': (context) => PrescriptionPage(prescription: null),
         '/medication_page': (context) => MedicationsPage(),
         '/calender_page': (context) => CalendarScreen(),
         '/appointment_page': (context) => AppointmentsPage(),

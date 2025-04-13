@@ -4,8 +4,7 @@ import 'package:adhere_med_frontend/models/prescribed_medication.dart';
 import 'package:http/http.dart' as http;
 
 class PrescriptionMedicationService {
-  static String baseUrl =
-      '$base_url/medication/prescriptions/'; // replace with your actual endpoint
+  static String baseUrl = '$base_url/medication/prescriptions/';
 
   static Future<List<PrescriptionMedication>> fetchAll() async {
     final response = await http.get(Uri.parse(baseUrl));

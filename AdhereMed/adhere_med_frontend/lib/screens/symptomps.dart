@@ -1,4 +1,6 @@
 import 'package:adhere_med_frontend/components/custom_input_field.dart';
+import 'package:adhere_med_frontend/models/symptom_model.dart';
+import 'package:adhere_med_frontend/services/symptom_service.dart';
 import 'package:flutter/material.dart';
 
 class SymptomsScreen extends StatefulWidget {
@@ -11,10 +13,10 @@ class SymptomsScreen extends StatefulWidget {
 class _SymptompsScreenState extends State<SymptomsScreen> {
   final TextEditingController mainSymptomController = TextEditingController();
   final TextEditingController durationController = TextEditingController();
-  final TextEditingController serverityController = TextEditingController();
+  final TextEditingController severityController = TextEditingController();
   final TextEditingController allergiesController = TextEditingController();
   final TextEditingController travelHistoryController = TextEditingController();
-  final TextEditingController aditionalDescriptionController =
+  final TextEditingController additionalDescriptionController =
       TextEditingController();
 
   List<String> selectedAllergies = [];
@@ -87,14 +89,41 @@ class _SymptompsScreenState extends State<SymptomsScreen> {
     );
   }
 
+  // Submit symptom function
+  void _submitSymptom() async {
+    final symptom = Symptom(
+      mainSymptom: mainSymptomController.text,
+      duration: durationController.text,
+      severity: severityController.text,
+      allergies: allergiesController.text,
+      travelHistory: travelHistoryController.text,
+      additionalDescription: additionalDescriptionController.text,
+      createdAt: DateTime.now(),
+      id: 0,
+      userId: 1,
+    );
+    print("this is the ymptom ${symptom}");
+
+    try {
+      final createdSymptom = await SymptomService().createSymptom(symptom);
+      ;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Symptom created: ${createdSymptom.mainSymptom}'),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Failed to create symptom')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Symptoms")),
 
-      ///
-      ///what does safe area do?
-      ///
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -111,7 +140,7 @@ class _SymptompsScreenState extends State<SymptomsScreen> {
                   ),
                   child: Center(
                     child: Text(
-                      "log your symptomps",
+                      "log your symptoms",
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
@@ -132,28 +161,28 @@ class _SymptompsScreenState extends State<SymptomsScreen> {
               hintText: "Duration",
             ),
             const SizedBox(height: 10),
+
             CustomTextField(
-              controller: serverityController,
-              hintText: "severity",
+              controller: severityController,
+              hintText: "Severity",
             ),
             const SizedBox(height: 10),
+
             CustomTextField(
               controller: allergiesController,
-              hintText: "alergies",
-
-              onTap: () {
-                _showAllergiesPicker();
-                print("list of alergies ");
-              },
+              hintText: "Allergies",
+              onTap: _showAllergiesPicker,
             ),
             const SizedBox(height: 10),
+
             CustomTextField(
               controller: travelHistoryController,
               hintText: "Travel history",
             ),
             const SizedBox(height: 10),
+
             CustomTextField(
-              controller: aditionalDescriptionController,
+              controller: additionalDescriptionController,
               hintText: "Additional description",
             ),
             const SizedBox(height: 10),
@@ -162,9 +191,7 @@ class _SymptompsScreenState extends State<SymptomsScreen> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 GestureDetector(
-                  onTap: () {
-                    print("submit symptomps");
-                  },
+                  onTap: _submitSymptom, // Submit the symptom
                   child: Container(
                     height: 30,
                     width: 150,
@@ -174,7 +201,7 @@ class _SymptompsScreenState extends State<SymptomsScreen> {
                     ),
                     child: Center(
                       child: Text(
-                        "submit sympoms",
+                        "Submit Symptoms",
                         style: TextStyle(color: Colors.white),
                       ),
                     ),
