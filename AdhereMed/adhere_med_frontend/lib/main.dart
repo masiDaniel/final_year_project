@@ -2,7 +2,7 @@ import 'package:adhere_med_frontend/screens/all_prescription_doctor_page.dart';
 import 'package:adhere_med_frontend/screens/appointments_page.dart';
 import 'package:adhere_med_frontend/screens/calender_screen.dart';
 import 'package:adhere_med_frontend/screens/doctor_details.dart';
-import 'package:adhere_med_frontend/screens/doctor_prescription_page.dart';
+import 'package:adhere_med_frontend/screens/doctor_diagnosis_page.dart';
 import 'package:adhere_med_frontend/screens/doctors_home_page.dart';
 import 'package:adhere_med_frontend/screens/doctors_patient_page.dart';
 import 'package:adhere_med_frontend/screens/home_page.dart';
@@ -17,13 +17,37 @@ import 'package:adhere_med_frontend/screens/symptomps.dart';
 import 'package:adhere_med_frontend/screens/symptoms_history.dart';
 import 'package:adhere_med_frontend/themes.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 void main() {
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeNotifications();
+  }
+
+  // Initialize notification settings
+  void _initializeNotifications() async {
+    var androidSettings = AndroidInitializationSettings('app_icon');
+    var initializationSettings = InitializationSettings(
+      android: androidSettings,
+    );
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,12 +69,13 @@ class MyApp extends StatelessWidget {
         '/calender_page': (context) => CalendarScreen(),
         '/appointment_page': (context) => AppointmentsPage(),
         '/doctors_home_page': (context) => DoctorsHomePage(),
-        '/doctors_prescription_page': (context) => DoctorPrescriptionPage(),
+        '/doctors_prescription_page': (context) => DoctorDiagnosisPage(),
         '/all_doctors_prescription_page': (context) => AllPrescriptionPage(),
         '/doctors_all_patient_page': (context) => PatientsPage(),
         '/doctors_patient_details_page': (context) => PatientDetailsPage(),
         '/medications': (context) => MedicationList(),
         '/doctor_details_page': (context) => DoctorListPage(),
+        '/landing': (context) => MyHomePage(),
       },
     );
   }

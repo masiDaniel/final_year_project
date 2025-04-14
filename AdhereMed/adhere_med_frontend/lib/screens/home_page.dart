@@ -6,7 +6,11 @@ import 'package:adhere_med_frontend/models/prescription_model.dart';
 import 'package:adhere_med_frontend/screens/prescription_page.dart';
 import 'package:adhere_med_frontend/services/prescribed_medications_service.dart';
 import 'package:adhere_med_frontend/services/prescription_services.dart';
+import 'package:adhere_med_frontend/services/user_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -21,9 +25,13 @@ class _HomePageState extends State<HomePage> {
   late Timer _timer;
   late Future<List<PrescriptionMedication>> _medications;
   late Future<List<Prescription>> _prescriptions;
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
   @override
   void initState() {
     super.initState();
+    _initializeNotifications();
 
     _medications = PrescriptionMedicationService.fetchAll();
     _prescriptions = PrescriptionService().fetchPrescriptions();
@@ -75,10 +83,127 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
+  // Initialize notification settings
+  void _initializeNotifications() async {
+    tz.initializeTimeZones(); // Initialize time zones
+    var androidSettings = AndroidInitializationSettings('app_icon');
+
+    var initializationSettings = InitializationSettings(
+      android: androidSettings,
+    );
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  }
+
+  // Schedule a notification
+  Future<void> _scheduleNotification({
+    required int hour,
+    required int minute,
+    required String medication,
+  }) async {
+    var time = Time(hour, minute, 0); // Specify the time for the notification
+
+    var androidDetails = AndroidNotificationDetails(
+      'medication_channel',
+      'Medication Notifications',
+      channelDescription: 'Channel for medication reminders',
+      importance: Importance.high,
+      priority: Priority.high,
+      ticker: 'ticker',
+    );
+
+    var notificationDetails = NotificationDetails(android: androidDetails);
+
+    await flutterLocalNotificationsPlugin.zonedSchedule(
+      0,
+      'Time to take your medication',
+      'It\'s time to take your $medication.',
+      _nextInstanceOfTime(time), // Schedule for the next time
+      notificationDetails,
+      androidAllowWhileIdle: true,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.wallClockTime,
+    );
+  }
+
+  // Helper function to get the next instance of a given time
+  tz.TZDateTime _nextInstanceOfTime(Time time) {
+    final now = tz.TZDateTime.now(tz.local);
+    tz.TZDateTime scheduledDate = tz.TZDateTime(
+      tz.local,
+      now.year,
+      now.month,
+      now.day,
+      time.hour,
+      time.minute,
+      0,
+    );
+    // If the time has already passed today, schedule it for tomorrow
+    if (scheduledDate.isBefore(now)) {
+      scheduledDate = scheduledDate.add(Duration(days: 1));
+    }
+    return scheduledDate;
+  }
+
+  void showSimpleNotification() async {
+    var androidPlatformChannelSpecifics = AndroidNotificationDetails(
+      'your_channel_id',
+      'your_channel_name',
+
+      importance: Importance.max,
+      priority: Priority.high,
+      ticker: 'ticker',
+    );
+
+    var platformChannelSpecifics = NotificationDetails(
+      android: androidPlatformChannelSpecifics,
+    );
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      'Hello!',
+      'This is a simple notification.',
+      platformChannelSpecifics,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final String? imageUrl = null;
     return Scaffold(
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(color: Colors.black),
+              child: Text(
+                'Welcome!',
+                style: TextStyle(color: Colors.white, fontSize: 24),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.home),
+              title: Text('Home'),
+              onTap: () {
+                Navigator.pushNamed(context, '/home_page');
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.settings),
+              title: Text('Settings'),
+              onTap: () {
+                Navigator.pushNamed(context, '/settings');
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('Logout'),
+              onTap: () {
+                logout(context);
+              },
+            ),
+          ],
+        ),
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -88,14 +213,26 @@ class _HomePageState extends State<HomePage> {
               children: [
                 Row(
                   children: [
-                    CircleAvatar(
-                      radius: 30,
-                      backgroundColor: Colors.black,
-                      backgroundImage:
-                          imageUrl != null
-                              ? NetworkImage(imageUrl)
-                              : AssetImage('assets/images/default_profile.png')
-                                  as ImageProvider,
+                    Builder(
+                      builder:
+                          (context) => GestureDetector(
+                            onTap: () {
+                              Scaffold.of(
+                                context,
+                              ).openDrawer(); // Will open the drawer
+                            },
+                            child: CircleAvatar(
+                              radius: 30,
+                              backgroundColor: Colors.black,
+                              backgroundImage:
+                                  imageUrl != null
+                                      ? NetworkImage(imageUrl)
+                                      : AssetImage(
+                                            'assets/images/default_profile.png',
+                                          )
+                                          as ImageProvider,
+                            ),
+                          ),
                     ),
                     SizedBox(width: 10),
                     Text("hi daniel"),

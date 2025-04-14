@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:adhere_med_frontend/screens/all_diagnoses_page.dart';
+import 'package:adhere_med_frontend/screens/doctor_diagnosis_page.dart';
+import 'package:adhere_med_frontend/services/shared_prefrence_data.dart';
 import 'package:flutter/material.dart';
 
 class DoctorsHomePage extends StatefulWidget {
@@ -13,10 +16,19 @@ class _DoctorsHomePageState extends State<DoctorsHomePage> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
   late Timer _timer;
+  late String? username;
+
+  void getUsername() async {
+    final value = await TokenService.getUserName();
+    setState(() {
+      username = value;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    getUsername();
 
     _timer = Timer.periodic(const Duration(seconds: 4), (Timer timer) {
       _currentPage = (_currentPage + 1) % 2;
@@ -59,7 +71,7 @@ class _DoctorsHomePageState extends State<DoctorsHomePage> {
                                   as ImageProvider,
                     ),
                     SizedBox(width: 10),
-                    Text("hi daniel"),
+                    Text("hi $username"),
                     Spacer(),
                     IconButton(
                       onPressed: () {
@@ -126,12 +138,60 @@ class _DoctorsHomePageState extends State<DoctorsHomePage> {
                 ),
 
                 Wrap(
-                  spacing: 20,
+                  spacing: 10,
                   runSpacing: 10,
                   children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DiagnosisListPage(),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        height: 80,
+                        width: 140,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: const Color(0xFF0D557F),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Total Diagnoses',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ],
+                              ),
+
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    '50',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 30,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                     Container(
                       height: 80,
-                      width: 150,
+                      width: 140,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         color: const Color(0xFF0D557F),
@@ -144,7 +204,7 @@ class _DoctorsHomePageState extends State<DoctorsHomePage> {
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Total Patients',
+                                  'Total Prescriptions',
                                   style: TextStyle(color: Colors.white),
                                 ),
                               ],
@@ -169,45 +229,7 @@ class _DoctorsHomePageState extends State<DoctorsHomePage> {
                     ),
                     Container(
                       height: 80,
-                      width: 150,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        color: const Color(0xFF0D557F),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Total Patients',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ],
-                            ),
-
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Text(
-                                  '50',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 30,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Container(
-                      height: 80,
-                      width: 150,
+                      width: 140,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         color: const Color(0xFF0D557F),
@@ -261,10 +283,11 @@ class _DoctorsHomePageState extends State<DoctorsHomePage> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        print("submit symptomps");
-                        Navigator.pushNamed(
+                        Navigator.push(
                           context,
-                          '/doctors_prescription_page',
+                          MaterialPageRoute(
+                            builder: (context) => DoctorDiagnosisPage(),
+                          ),
                         );
                       },
                       child: Container(
@@ -276,7 +299,7 @@ class _DoctorsHomePageState extends State<DoctorsHomePage> {
                         ),
                         child: Center(
                           child: Text(
-                            "Prescribe",
+                            "Diagnose",
                             style: TextStyle(color: Colors.white),
                           ),
                         ),

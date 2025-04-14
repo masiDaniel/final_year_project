@@ -1,8 +1,8 @@
 class Diagnosis {
   final int id;
   final String title;
-  final String description;
-  final String dateDiagnosed;
+  final String? description;
+  final String? dateDiagnosed;
   final String severity;
   final bool followUpRequired;
   final String notes;
@@ -12,8 +12,8 @@ class Diagnosis {
   Diagnosis({
     required this.id,
     required this.title,
-    required this.description,
-    required this.dateDiagnosed,
+    this.description,
+    this.dateDiagnosed,
     required this.severity,
     required this.followUpRequired,
     required this.notes,

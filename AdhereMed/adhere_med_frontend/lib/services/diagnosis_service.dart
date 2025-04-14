@@ -1,16 +1,21 @@
 import 'dart:convert';
+import 'package:adhere_med_frontend/components/env.dart';
 import 'package:adhere_med_frontend/models/diagnosis_model.dart';
+import 'package:adhere_med_frontend/services/shared_prefrence_data.dart';
 import 'package:http/http.dart' as http;
 
 class DiagnosisService {
-  final String baseUrl; // The base URL for your API
-
-  DiagnosisService({required this.baseUrl});
-
   // Fetch all diagnoses
   Future<List<Diagnosis>> fetchDiagnoses() async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/diagnoses'));
+      final token = await TokenService.getAccessToken();
+      final response = await http.get(
+        Uri.parse('$base_url/prescription/diagnosis/'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
 
       if (response.statusCode == 200) {
         List<dynamic> data = jsonDecode(response.body);
@@ -26,7 +31,14 @@ class DiagnosisService {
   // Fetch a single diagnosis by ID
   Future<Diagnosis> fetchDiagnosisById(int id) async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/diagnoses/$id'));
+      final token = await TokenService.getAccessToken();
+      final response = await http.get(
+        Uri.parse('$base_url/prescription/diagnosis/$id'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
 
       if (response.statusCode == 200) {
         return Diagnosis.fromJson(jsonDecode(response.body));
@@ -41,9 +53,13 @@ class DiagnosisService {
   // Create a new diagnosis
   Future<Diagnosis> createDiagnosis(Diagnosis diagnosis) async {
     try {
+      final token = await TokenService.getAccessToken();
       final response = await http.post(
-        Uri.parse('$baseUrl/prescription/diagnosis/'),
-        headers: {'Content-Type': 'application/json'},
+        Uri.parse('$base_url/prescription/diagnosis/'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
         body: jsonEncode(diagnosis.toJson()),
       );
 
@@ -60,9 +76,13 @@ class DiagnosisService {
   // Update an existing diagnosis
   Future<Diagnosis> updateDiagnosis(int id, Diagnosis diagnosis) async {
     try {
-      final response = await http.put(
-        Uri.parse('$baseUrl/diagnoses/$id'),
-        headers: {'Content-Type': 'application/json'},
+      final token = await TokenService.getAccessToken();
+      final response = await http.patch(
+        Uri.parse('$base_url/prescription/diagnosis/$id'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
         body: jsonEncode(diagnosis.toJson()),
       );
 
@@ -79,7 +99,14 @@ class DiagnosisService {
   // Delete a diagnosis
   Future<void> deleteDiagnosis(int id) async {
     try {
-      final response = await http.delete(Uri.parse('$baseUrl/diagnoses/$id'));
+      final token = await TokenService.getAccessToken();
+      final response = await http.delete(
+        Uri.parse('$base_url/prescription/diagnosis/$id'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
 
       if (response.statusCode != 204) {
         throw Exception('Failed to delete diagnosis');

@@ -1,5 +1,7 @@
-import 'package:adhere_med_frontend/components/custom_input_field.dart';
+import 'package:adhere_med_frontend/models/appointment_model.dart';
+import 'package:adhere_med_frontend/services/appointment_services.dart';
 import 'package:flutter/material.dart';
+import '../components/custom_input_field.dart';
 
 class AppointmentsPage extends StatefulWidget {
   const AppointmentsPage({super.key});
@@ -12,6 +14,56 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
   final TextEditingController dateTimeController = TextEditingController();
   final TextEditingController doctorController = TextEditingController();
   final TextEditingController modeController = TextEditingController();
+
+  late AppointmentService appointmentService;
+  List<Appointment> appointments = [];
+
+  final int currentUserId = 1; // Replace with logged-in user ID
+  int selectedDoctorId = 1; // Will update dynamically
+  final Map<String, int> doctors = {
+    "Dr. John Doe": 1,
+    "Dr. Smith": 2,
+    "Dr. Jane": 3,
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    appointmentService = AppointmentService(); // Replace with real token
+    fetchAppointments();
+  }
+
+  Future<void> fetchAppointments() async {
+    try {
+      final data = await appointmentService.getAppointments();
+      setState(() {
+        appointments = data;
+      });
+    } catch (e) {
+      print('Error fetching appointments: $e');
+    }
+  }
+
+  Future<void> createNewAppointment() async {
+    try {
+      final dateTime = DateTime.parse(dateTimeController.text);
+      final appointment = Appointment(
+        id: 0,
+        date: dateTime.toIso8601String().split("T")[0],
+        time: dateTime.toIso8601String().split("T")[1].substring(0, 8),
+        reason: modeController.text,
+        status: 'pending',
+        createdAt: '',
+        patient: currentUserId,
+        doctor: selectedDoctorId,
+      );
+      await appointmentService.createAppointment(appointment);
+      fetchAppointments();
+    } catch (e) {
+      print('Error creating appointment: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -86,20 +138,15 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
                       const SizedBox(height: 10),
                       CustomTextField(
                         controller: doctorController,
-                        hintText: "select doctor",
+                        hintText: "Select doctor",
                         onTap: () async {
-                          final doctors = [
-                            "Dr. John Doe",
-                            "Dr. Smith",
-                            "Dr. Jane",
-                          ];
                           final selected = await showDialog<String>(
                             context: context,
                             builder:
                                 (context) => SimpleDialog(
-                                  title: Text("Select Doctor"),
+                                  title: const Text("Select Doctor"),
                                   children:
-                                      doctors.map((doctor) {
+                                      doctors.keys.map((doctor) {
                                         return SimpleDialogOption(
                                           child: Text(doctor),
                                           onPressed:
@@ -113,13 +160,14 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
                           );
                           if (selected != null) {
                             doctorController.text = selected;
+                            selectedDoctorId = doctors[selected]!;
                           }
                         },
                       ),
                       const SizedBox(height: 10),
                       CustomTextField(
                         controller: modeController,
-                        hintText: "select mode",
+                        hintText: "Select mode",
                         onTap: () async {
                           final modes = ["Physical", "Virtual", "Phone Call"];
                           final selected = await showModalBottomSheet<String>(
@@ -142,23 +190,30 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
                           }
                         },
                       ),
-
-                      Spacer(),
-
+                      const Spacer(),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Container(
-                            height: 30,
-                            width: 170,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF85A9BD),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Center(
-                              child: Text(
-                                "Schedule appointment",
-                                style: TextStyle(color: Colors.white),
+                          GestureDetector(
+                            onTap: () {
+                              if (dateTimeController.text.isNotEmpty &&
+                                  doctorController.text.isNotEmpty &&
+                                  modeController.text.isNotEmpty) {
+                                createNewAppointment();
+                              }
+                            },
+                            child: Container(
+                              height: 30,
+                              width: 170,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF85A9BD),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Center(
+                                child: Text(
+                                  "Schedule appointment",
+                                  style: TextStyle(color: Colors.white),
+                                ),
                               ),
                             ),
                           ),
@@ -168,9 +223,7 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
                   ),
                 ),
               ),
-
-              SizedBox(height: 50),
-
+              const SizedBox(height: 50),
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
@@ -190,9 +243,7 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
                   ),
                 ],
               ),
-
-              SizedBox(height: 20),
-
+              const SizedBox(height: 20),
               Container(
                 height: 300,
                 width: double.infinity,
@@ -203,47 +254,46 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
-                    children: [
-                      Container(
-                        height: 250,
-                        width: 170,
-                        decoration: BoxDecoration(
-                          color: Colors.blue,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Text("prescription 1"),
-                      ),
-                      const SizedBox(width: 15),
-                      Container(
-                        height: 250,
-                        width: 170,
-                        decoration: BoxDecoration(
-                          color: Colors.blue,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Text("prescription 1"),
-                      ),
-                      const SizedBox(width: 15),
-                      Container(
-                        height: 250,
-                        width: 170,
-                        decoration: BoxDecoration(
-                          color: Colors.blue,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Text("prescription 1"),
-                      ),
-                      const SizedBox(width: 15),
-                      Container(
-                        height: 250,
-                        width: 170,
-                        decoration: BoxDecoration(
-                          color: Colors.blue,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Text("prescription 1"),
-                      ),
-                    ],
+                    children:
+                        appointments.map((appointment) {
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 15),
+                            child: Container(
+                              height: 250,
+                              width: 170,
+                              decoration: BoxDecoration(
+                                color: Colors.blue,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              padding: const EdgeInsets.all(8),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "Doctor ID: ${appointment.doctor}",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  Text(
+                                    "Date: ${appointment.date}",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  Text(
+                                    "Time: ${appointment.time}",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  Text(
+                                    "Mode: ${appointment.reason ?? 'Not set'}",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  Text(
+                                    "Status: ${appointment.status}",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
                   ),
                 ),
               ),

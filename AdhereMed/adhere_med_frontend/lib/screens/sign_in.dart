@@ -1,11 +1,38 @@
 import 'package:adhere_med_frontend/components/custom_input_field.dart';
+import 'package:adhere_med_frontend/services/user_service.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class SignInScreen extends StatelessWidget {
+class SignInScreen extends StatefulWidget {
+  const SignInScreen({super.key});
+
+  @override
+  State<SignInScreen> createState() => _SignInScreenState();
+}
+
+class _SignInScreenState extends State<SignInScreen> {
   final TextEditingController emailController = TextEditingController();
+  bool rememberMe = false;
   final TextEditingController passwordController = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    loadSavedCredentials();
+  }
 
-  SignInScreen({super.key});
+  void loadSavedCredentials() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? savedEmail = prefs.getString('saved_email');
+    String? savedPassword = prefs.getString('saved_password');
+
+    if (savedEmail != null && savedPassword != null) {
+      setState(() {
+        emailController.text = savedEmail;
+        passwordController.text = savedPassword;
+        rememberMe = true;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,14 +99,81 @@ class SignInScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 40),
 
+                    CheckboxListTile(
+                      title: Text("Remember Me"),
+                      value: rememberMe,
+                      onChanged: (value) {
+                        setState(() {
+                          rememberMe = value!;
+                        });
+                      },
+                    ),
+
                     // Sign In Button
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/home_page');
-                          print("Email: ${emailController.text}");
-                          print("Password: ${passwordController.text}");
+                        onPressed: () async {
+                          try {
+                            final user = await login(
+                              emailController.text,
+                              passwordController.text,
+                            );
+
+                            if (rememberMe) {
+                              final prefs =
+                                  await SharedPreferences.getInstance();
+                              await prefs.setString(
+                                'saved_email',
+                                emailController.text,
+                              );
+                              await prefs.setString(
+                                'saved_password',
+                                passwordController.text,
+                              );
+                            } else {
+                              final prefs =
+                                  await SharedPreferences.getInstance();
+                              await prefs.remove('saved_email');
+                              await prefs.remove('saved_password');
+                            }
+
+                            // Navigate based on user type
+                            switch (user.userType) {
+                              case 'patient':
+                                Navigator.pushNamed(context, '/home_page');
+                                break;
+                              case 'doctor':
+                                Navigator.pushNamed(
+                                  context,
+                                  '/doctors_home_page',
+                                );
+                                break;
+                              case 'pharmacist':
+                                Navigator.pushNamed(context, '/pharmacy_home');
+                                break;
+                              default:
+                                // fallback or error screen
+                                Navigator.pushNamed(context, '/error_page');
+                            }
+                          } catch (e) {
+                            String errorMsg = 'Login failed. Please try again.';
+
+                            if (e is Exception) {
+                              errorMsg = e.toString().replaceFirst(
+                                'Exception: ',
+                                '',
+                              );
+                            }
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(errorMsg),
+                                backgroundColor: Colors.redAccent,
+                                duration: Duration(seconds: 3),
+                              ),
+                            );
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
