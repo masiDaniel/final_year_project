@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import Doctor, Patient, CareGiver, Symptom
+from .models import Appointment, Doctor, Patient, CareGiver, Symptom
 from pharmacies.models import Pharmacy
 
 
@@ -98,3 +98,63 @@ class SymptomSerializer(serializers.ModelSerializer):
     class Meta:
         model = Symptom
         fields = "__all__"
+
+class AppointmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Appointment
+        fields = '__all__'
+
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+
+    
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        user_data = CustomUserSerializer(self.user).data
+        data.update(user_data)
+
+        # Add extra profile data based on user_type
+        if self.user.user_type == 'doctor':
+            try:
+                doctor = Doctor.objects.get(user_id=self.user)
+                data['profile'] = {
+                    'license_no': doctor.liscense_no,
+                    # Add other doctor fields as needed
+                }
+            except Doctor.DoesNotExist:
+                data['profile'] = {}
+
+        elif self.user.user_type == 'patient':
+            try:
+                patient = Patient.objects.get(user_id=self.user)
+                data['profile'] = {
+                    'member_no': patient.member_no,
+                    # Add other patient fields
+                }
+            except Patient.DoesNotExist:
+                data['profile'] = {}
+
+        elif self.user.user_type == 'caregiver':
+            try:
+                caregiver = CareGiver.objects.get(user_id=self.user)
+                data['profile'] = {
+                    'license_no': caregiver.liscense_no,
+                    # Add other caregiver fields
+                }
+            except CareGiver.DoesNotExist:
+                data['profile'] = {}
+
+        elif self.user.user_type == 'pharmacy':
+            try:
+                pharmacy = Pharmacy.objects.get(user_id=self.user)
+                data['profile'] = {
+                    'business_no': pharmacy.business_no,
+                    # Add more pharmacy fields
+                }
+            except Pharmacy.DoesNotExist:
+                data['profile'] = {}
+
+        return data

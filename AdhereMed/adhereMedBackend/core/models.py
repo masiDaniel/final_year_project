@@ -12,7 +12,7 @@ class CustomUser(AbstractUser):
     passport_pic = models.ImageField(null=True)
     id_scan = models.ImageField(null=True)
     USER_TYPES = (('doctor', 'Doctor'), ('patient', 'Patient'), ('caregiver', 'Caregiver'),  ('pharmacy', 'Pharmacy'))
-    user_type = models.CharField(max_length=10, choices=USER_TYPES, default='tenant')
+    user_type = models.CharField(max_length=10, choices=USER_TYPES, default='patient')
 
 
     def __str__(self):
@@ -72,3 +72,22 @@ class Symptom(models.Model):
 
     def __str__(self):
         return f"{self.user.username}'s symptom - {self.main_symptom} ({self.created_at.date()})"
+
+
+class Appointment(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('confirmed', 'Confirmed'),
+        ('cancelled', 'Cancelled'),
+        ('completed', 'Completed'),
+    ]
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+    date = models.DateField()
+    time = models.TimeField()
+    reason = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Appointment with Dr. {self.doctor} on {self.date} at {self.time}"

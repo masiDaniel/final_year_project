@@ -5,8 +5,10 @@ from django.db.models import Q
 from .models import Medication, MedicationAdherence, PrescriptionMedication
 from .serializers import MedicationAdherenceSerializer, MedicationSerializer, PrescriptionMedicationSerializer
 from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import IsAuthenticated
 
 class MedicationAPIView(APIView):
+    permission_classes = [IsAuthenticated] 
     def get(self, request):
         queryset = Medication.objects.all()
 
@@ -36,6 +38,7 @@ class MedicationAPIView(APIView):
 
 
 class MedicationDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated] 
     def get_object(self, pk):
         return get_object_or_404(Medication, pk=pk)
 
@@ -60,6 +63,7 @@ class MedicationDetailAPIView(APIView):
 
 
 class PrescriptionMedicationAPIView(APIView):
+    permission_classes = [IsAuthenticated] 
     def get(self, request):
         queryset = PrescriptionMedication.objects.all()
         serializer = PrescriptionMedicationSerializer(queryset, many=True)
@@ -73,6 +77,7 @@ class PrescriptionMedicationAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class MedicationAdherenceAPIView(APIView):
+    permission_classes = [IsAuthenticated] 
 
     # Mark medication as taken
     def post(self, request, medication_id=None):

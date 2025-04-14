@@ -1,14 +1,17 @@
-from django.db import IntegrityError
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
-from .serializers import CustomUserSerializer, DoctorSerializer, PatientSerializer, SymptomSerializer
-from .models import CareGiver, Doctor, Patient, Symptom
+from .serializers import AppointmentSerializer, CustomUserSerializer, DoctorSerializer, MyTokenObtainPairSerializer, PatientSerializer, SymptomSerializer
+from .models import Appointment, CareGiver, Doctor, Patient, Symptom
 from pharmacies.models import Pharmacy
-from django.db import IntegrityError, transaction
 from django.conf import settings
 from django.apps import apps
+from django.contrib.auth import authenticate
+from rest_framework.authtoken.models import Token
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.tokens import RefreshToken
 
 # Create your views here.
 # Doctor API view
@@ -61,7 +64,39 @@ class UserRegistrationAPIView(APIView):
             return Response({'message': 'User registered successfully!'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+
+
+# class UserLoginAPIView(APIView):
+#     def post(self, request, *args, **kwargs):
+#         email = request.data.get('email')
+#         password = request.data.get('password')
+
+#         if email is None or password is None:
+#             return Response({'error': 'Please provide both email and password'},
+#                             status=status.HTTP_400_BAD_REQUEST)
+
+#         user = authenticate(request, email=email, password=password)
+
+#         if not user:
+#             return Response({'error': 'Invalid Credentials'},
+#                             status=status.HTTP_401_UNAUTHORIZED)
+
+#         token, created = Token.objects.get_or_create(user=user)
+
+#         return Response({
+#             'token': token.key,
+#             'user_id': user.id,
+#             'user_type': user.user_type,
+#             'message': 'Login successful!'
+#         }, status=status.HTTP_200_OK)
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
+
+
 class DoctorAPIView(APIView):
+    permission_classes = [IsAuthenticated] 
 
     def get(self, request, *args, **kwargs):
         # Get all doctors
@@ -84,6 +119,7 @@ class DoctorAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class PatientAPIView(APIView):
+    permission_classes = [IsAuthenticated] 
 
     def get(self, request, *args, **kwargs):
         # Get all doctors
@@ -92,6 +128,7 @@ class PatientAPIView(APIView):
         return Response(serializer.data)
 
 class PatientUpdateAPIView(APIView):
+    permission_classes = [IsAuthenticated] 
     def patch(self, request, *args, **kwargs):
         # Try to fetch the patient based on the provided primary key
         try:
@@ -109,6 +146,7 @@ class PatientUpdateAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class DoctorUpdateAPIView(APIView):
+    permission_classes = [IsAuthenticated] 
     def patch(self, request, *args, **kwargs):
         # Try to fetch the patient based on the provided primary key
         try:
@@ -128,6 +166,7 @@ class DoctorUpdateAPIView(APIView):
 
 
 class SymptomAPIView(APIView):
+    permission_classes = [IsAuthenticated] 
 
     def get(self, request):
         # symptoms = Symptom.objects.filter(user=request.user).order_by('-created_at')
@@ -141,3 +180,31 @@ class SymptomAPIView(APIView):
             serializer.save()  # attach current user refactor on this
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class AppointmentAPIView(APIView):
+    permission_classes = [IsAuthenticated] 
+
+    def get(self, request):
+        # symptoms = Symptom.objects.filter(user=request.user).order_by('-created_at')
+        appointment = Appointment.objects.all()
+        serializer = AppointmentSerializer(appointment, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        serializer = AppointmentSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()  # attach current user refactor on this
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            refresh_token = request.data["refresh"]
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response(status=status.HTTP_205_RESET_CONTENT)
+        except Exception as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)

@@ -4,10 +4,12 @@ from rest_framework import status
 from django.db.models import Q
 from prescriptions.serializers import DiagnosisSerializer, PrescriptionSerializer
 from .models import Diagnosis, Prescription
+from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
 
 class DiagnosisAPIView(APIView):
+    permission_classes = [IsAuthenticated] 
     def get(self, request):
         queryset = Diagnosis.objects.all()
 
@@ -38,6 +40,7 @@ class DiagnosisAPIView(APIView):
 
 
 class PrescriptionAPIView(APIView):
+    permission_classes = [IsAuthenticated] 
     def get(self, request):
         queryset = Prescription.objects.all()
 
