@@ -5,14 +5,14 @@ from pharmacies.models import Pharmacy
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
-    license_no = serializers.CharField(required=False, allow_blank=True)
+    liscense_no = serializers.CharField(required=False, allow_blank=True)
     member_no = serializers.CharField(required=False, allow_blank=True)
     business_no = serializers.CharField(required=False, allow_blank=True)
 
 
     class Meta:
         model = get_user_model()
-        fields = ['username', 'email', 'user_type', 'license_no', 'member_no', 'business_no']
+        fields = '__all__'
 
     def create(self, validated_data):
         # Create the user
@@ -66,6 +66,48 @@ class CustomUserSerializer(serializers.ModelSerializer):
             )
 
         return user
+    def update(self, instance, validated_data):
+        # Update CustomUser fields
+        for attr, value in validated_data.items():
+            if hasattr(instance, attr):
+                setattr(instance, attr, value)
+        instance.save()
+
+        # Update related profile model based on user_type
+        user_type = instance.user_type
+
+        try:
+            if user_type == 'doctor':
+                license_no = validated_data.get('license_no')
+                if license_no:
+                    doctor = Doctor.objects.get(user_id=instance)
+                    doctor.liscense_no = license_no
+                    doctor.save()
+
+            elif user_type == 'patient':
+                member_no = validated_data.get('member_no')
+                if member_no:
+                    patient = Patient.objects.get(user_id=instance)
+                    patient.member_no = member_no
+                    patient.save()
+
+            elif user_type == 'caregiver':
+                license_no = validated_data.get('license_no')
+                if license_no:
+                    caregiver = CareGiver.objects.get(user_id=instance)
+                    caregiver.liscense_no = license_no
+                    caregiver.save()
+
+            elif user_type == 'pharmacy':
+                business_no = validated_data.get('business_no')
+                if business_no:
+                    pharmacy = Pharmacy.objects.get(user_id=instance)
+                    pharmacy.business_no = business_no
+                    pharmacy.save()
+        except Exception as e:
+            raise serializers.ValidationError(f"Error updating profile: {e}")
+
+        return instance
 
 class DoctorSerializer(serializers.ModelSerializer):
     user_details = serializers.SerializerMethodField()  
@@ -80,9 +122,15 @@ class DoctorSerializer(serializers.ModelSerializer):
         return CustomUserSerializer(user).data  
 
 class PatientSerializer(serializers.ModelSerializer):
+    user_details = serializers.SerializerMethodField()  
     class Meta:
         model = Patient
         fields = "__all__"
+
+    def get_user_details(self, obj):
+       
+        user = obj.user_id
+        return CustomUserSerializer(user).data 
 class CareGiverSerializer(serializers.ModelSerializer):
     class Meta:
         model = CareGiver
@@ -112,49 +160,34 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     
     def validate(self, attrs):
         data = super().validate(attrs)
-
         user_data = CustomUserSerializer(self.user).data
         data.update(user_data)
 
-        # Add extra profile data based on user_type
-        if self.user.user_type == 'doctor':
-            try:
-                doctor = Doctor.objects.get(user_id=self.user)
-                data['profile'] = {
-                    'license_no': doctor.liscense_no,
-                    # Add other doctor fields as needed
-                }
-            except Doctor.DoesNotExist:
-                data['profile'] = {}
+        profile = {}
 
-        elif self.user.user_type == 'patient':
-            try:
-                patient = Patient.objects.get(user_id=self.user)
-                data['profile'] = {
-                    'member_no': patient.member_no,
-                    # Add other patient fields
+        try:
+            if self.user.user_type == 'doctor':
+                profile = {
+                    'license_no': self.user.doctor.liscense_no
                 }
-            except Patient.DoesNotExist:
-                data['profile'] = {}
 
-        elif self.user.user_type == 'caregiver':
-            try:
-                caregiver = CareGiver.objects.get(user_id=self.user)
-                data['profile'] = {
-                    'license_no': caregiver.liscense_no,
-                    # Add other caregiver fields
+            elif self.user.user_type == 'patient':
+                profile = {
+                    'member_no': self.user.patient.member_no
                 }
-            except CareGiver.DoesNotExist:
-                data['profile'] = {}
 
-        elif self.user.user_type == 'pharmacy':
-            try:
-                pharmacy = Pharmacy.objects.get(user_id=self.user)
-                data['profile'] = {
-                    'business_no': pharmacy.business_no,
-                    # Add more pharmacy fields
+            elif self.user.user_type == 'caregiver':
+                profile = {
+                    'license_no': self.user.caregiver.license_no
                 }
-            except Pharmacy.DoesNotExist:
-                data['profile'] = {}
 
+            elif self.user.user_type == 'pharmacy':
+                profile = {
+                    'business_no': self.user.pharmacy.business_no
+                }
+
+        except (Doctor.DoesNotExist, Patient.DoesNotExist, CareGiver.DoesNotExist, Pharmacy.DoesNotExist):
+            profile = {}
+
+        data['profile'] = profile
         return data

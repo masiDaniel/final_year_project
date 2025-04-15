@@ -65,7 +65,29 @@ class UserRegistrationAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class ProfileUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
 
+    def get(self, request):
+        user = request.user
+        serializer = CustomUserSerializer(user)
+        return Response(serializer.data)
+
+    def put(self, request):
+        user = request.user
+        serializer = CustomUserSerializer(user, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request):
+        user = request.user
+        serializer = CustomUserSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # class UserLoginAPIView(APIView):
 #     def post(self, request, *args, **kwargs):
