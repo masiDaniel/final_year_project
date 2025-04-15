@@ -41,9 +41,30 @@ class _SymptomsHistoryState extends State<SymptomsHistory> {
     _symptoms = SymptomService().fetchSymptomps(); // Load symptoms
   }
 
+  void _openAskAI() async {
+    final symptoms = await _symptoms;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return AskAIBottomSheet(symptoms: symptoms);
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _openAskAI,
+        icon: const Icon(Icons.chat),
+        label: const Text('Ask Adhere AI'),
+        backgroundColor: Colors.blue,
+      ),
       appBar: AppBar(title: const Text('Symptoms History')),
       body: FutureBuilder<List<Symptom>>(
         future: _symptoms,
@@ -132,6 +153,97 @@ class _SymptomsHistoryState extends State<SymptomsHistory> {
                 }).toList(),
           );
         },
+      ),
+    );
+  }
+}
+
+class AskAIBottomSheet extends StatefulWidget {
+  final List<Symptom> symptoms;
+  const AskAIBottomSheet({super.key, required this.symptoms});
+
+  @override
+  State<AskAIBottomSheet> createState() => _AskAIBottomSheetState();
+}
+
+class _AskAIBottomSheetState extends State<AskAIBottomSheet> {
+  final Set<Symptom> selected = {};
+  bool loading = false;
+  String? response;
+
+  Future<void> _sendToAI() async {
+    setState(() => loading = true);
+    try {
+      // Prepare symptom texts
+      final symptomsList = selected.map((s) => s.mainSymptom).toList();
+
+      final result = await SymptomService().askAI(symptomsList);
+
+      setState(() {
+        response = result;
+        loading = false;
+      });
+    } catch (e) {
+      setState(() {
+        response = 'Failed to get response from Adhere AI.';
+        loading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text('Select Symptoms to Ask About'),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            children:
+                widget.symptoms.map((symptom) {
+                  final isSelected = selected.contains(symptom);
+                  return FilterChip(
+                    label: Text(symptom.mainSymptom),
+                    selected: isSelected,
+                    selectedColor: Colors.blue,
+                    onSelected: (selectedNow) {
+                      setState(() {
+                        isSelected
+                            ? selected.remove(symptom)
+                            : selected.add(symptom);
+                      });
+                    },
+                  );
+                }).toList(),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton.icon(
+            onPressed: selected.isEmpty || loading ? null : _sendToAI,
+            icon: const Icon(Icons.send),
+
+            label:
+                loading
+                    ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                    : const Text('Ask'),
+          ),
+          if (response != null) ...[
+            const SizedBox(height: 20),
+            const Divider(),
+            Text(
+              'Adhere AI says:',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            Text(response!),
+          ],
+        ],
       ),
     );
   }

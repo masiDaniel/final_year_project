@@ -1,5 +1,10 @@
 import 'package:adhere_med_frontend/models/diagnosis_model.dart';
+import 'package:adhere_med_frontend/models/prescribed_medication.dart';
+import 'package:adhere_med_frontend/models/prescription_model.dart';
+import 'package:adhere_med_frontend/screens/prescription_page.dart';
 import 'package:adhere_med_frontend/services/diagnosis_service.dart';
+import 'package:adhere_med_frontend/services/prescribed_medications_service.dart';
+import 'package:adhere_med_frontend/services/prescription_services.dart';
 import 'package:flutter/material.dart';
 
 class DiagnosisListPage extends StatefulWidget {
@@ -11,11 +16,15 @@ class DiagnosisListPage extends StatefulWidget {
 
 class _DiagnosisListPageState extends State<DiagnosisListPage> {
   late Future<List<Diagnosis>> _diagnosesFuture;
+  late Future<List<Prescription>> _prescriptions;
+  late Future<List<PrescriptionMedication>> _prescribedMedications;
 
   @override
   void initState() {
     super.initState();
     _diagnosesFuture = DiagnosisService().fetchDiagnoses();
+    _prescribedMedications = PrescriptionMedicationService.fetchAll();
+    _prescriptions = PrescriptionService().fetchPrescriptions();
   }
 
   @override
@@ -72,6 +81,30 @@ class _DiagnosisListPageState extends State<DiagnosisListPage> {
                       Text("Notes: ${diagnosis.notes}"),
                       if (diagnosis.dateDiagnosed != null)
                         Text("Diagnosed on: ${diagnosis.dateDiagnosed}"),
+                      const SizedBox(height: 12), // spacing before the button
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => PrescriptionPage(
+                                    prescription: _prescriptions.then(
+                                      (allPrescriptions) =>
+                                          allPrescriptions
+                                              .where(
+                                                (p) =>
+                                                    p.diagnosisId ==
+                                                    diagnosis.id,
+                                              )
+                                              .toList(),
+                                    ),
+                                  ),
+                            ),
+                          );
+                        },
+                        child: const Text("View Prescription"),
+                      ),
                     ],
                   ),
                 );

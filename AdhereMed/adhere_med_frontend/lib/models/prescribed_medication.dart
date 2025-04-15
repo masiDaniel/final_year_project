@@ -44,7 +44,7 @@ class PrescriptionMedication {
       dosage: json['dosage'],
       frequency: json['frequency'],
       duration: json['duration'],
-      instructions: json['instructions'],
+      instructions: json['instructions'] ?? 'Empty',
       morning: json['morning'],
       afternoon: json['afternoon'],
       evening: json['evening'],

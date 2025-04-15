@@ -126,73 +126,13 @@ class _SymptompsScreenState extends State<SymptomsScreen> {
 
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Container(
-                  height: 30,
-                  width: 150,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF85A9BD),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Center(
-                    child: Text(
-                      "log your symptoms",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 30),
-
-            CustomTextField(
-              controller: mainSymptomController,
-              hintText: "Main symptom",
-            ),
-            const SizedBox(height: 10),
-
-            CustomTextField(
-              controller: durationController,
-              hintText: "Duration",
-            ),
-            const SizedBox(height: 10),
-
-            CustomTextField(
-              controller: severityController,
-              hintText: "Severity",
-            ),
-            const SizedBox(height: 10),
-
-            CustomTextField(
-              controller: allergiesController,
-              hintText: "Allergies",
-              onTap: _showAllergiesPicker,
-            ),
-            const SizedBox(height: 10),
-
-            CustomTextField(
-              controller: travelHistoryController,
-              hintText: "Travel history",
-            ),
-            const SizedBox(height: 10),
-
-            CustomTextField(
-              controller: additionalDescriptionController,
-              hintText: "Additional description",
-            ),
-            const SizedBox(height: 10),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                GestureDetector(
-                  onTap: _submitSymptom, // Submit the symptom
-                  child: Container(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
                     height: 30,
                     width: 150,
                     decoration: BoxDecoration(
@@ -201,15 +141,77 @@ class _SymptompsScreenState extends State<SymptomsScreen> {
                     ),
                     child: Center(
                       child: Text(
-                        "Submit Symptoms",
+                        "log your symptoms",
                         style: TextStyle(color: Colors.white),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+
+              const SizedBox(height: 30),
+
+              CustomTextField(
+                controller: mainSymptomController,
+                hintText: "Main symptom",
+              ),
+              const SizedBox(height: 10),
+
+              CustomTextField(
+                controller: durationController,
+                hintText: "Duration",
+              ),
+              const SizedBox(height: 10),
+
+              CustomTextField(
+                controller: severityController,
+                hintText: "Severity",
+              ),
+              const SizedBox(height: 10),
+
+              CustomTextField(
+                controller: allergiesController,
+                hintText: "Allergies",
+                onTap: _showAllergiesPicker,
+              ),
+              const SizedBox(height: 10),
+
+              CustomTextField(
+                controller: travelHistoryController,
+                hintText: "Travel history",
+              ),
+              const SizedBox(height: 10),
+
+              CustomTextField(
+                controller: additionalDescriptionController,
+                hintText: "Additional description",
+              ),
+              const SizedBox(height: 10),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  GestureDetector(
+                    onTap: _submitSymptom, // Submit the symptom
+                    child: Container(
+                      height: 30,
+                      width: 150,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF85A9BD),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Center(
+                        child: Text(
+                          "Submit Symptoms",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

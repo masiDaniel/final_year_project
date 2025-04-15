@@ -1,16 +1,15 @@
 import 'dart:async';
 
 import 'package:adhere_med_frontend/components/custom_button.dart';
+import 'package:adhere_med_frontend/models/medication_model.dart';
 import 'package:adhere_med_frontend/models/prescribed_medication.dart';
 import 'package:adhere_med_frontend/models/prescription_model.dart';
 import 'package:adhere_med_frontend/screens/prescription_page.dart';
+import 'package:adhere_med_frontend/services/medication_service.dart';
 import 'package:adhere_med_frontend/services/prescribed_medications_service.dart';
 import 'package:adhere_med_frontend/services/prescription_services.dart';
 import 'package:adhere_med_frontend/services/user_service.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/timezone.dart' as tz;
-import 'package:timezone/data/latest.dart' as tz;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -23,17 +22,16 @@ class _HomePageState extends State<HomePage> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
   late Timer _timer;
-  late Future<List<PrescriptionMedication>> _medications;
+  late Future<List<Medication>> _medications;
+  late Future<List<PrescriptionMedication>> _prescribedMedications;
   late Future<List<Prescription>> _prescriptions;
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
 
   @override
   void initState() {
     super.initState();
-    _initializeNotifications();
-
-    _medications = PrescriptionMedicationService.fetchAll();
+    // _initializeNotifications();
+    _medications = MedicationService().getMedication();
+    _prescribedMedications = PrescriptionMedicationService.fetchAll();
     _prescriptions = PrescriptionService().fetchPrescriptions();
 
     _timer = Timer.periodic(const Duration(seconds: 4), (Timer timer) {
@@ -83,87 +81,87 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
-  // Initialize notification settings
-  void _initializeNotifications() async {
-    tz.initializeTimeZones(); // Initialize time zones
-    var androidSettings = AndroidInitializationSettings('app_icon');
+  // // Initialize notification settings
+  // void _initializeNotifications() async {
+  //   tz.initializeTimeZones(); // Initialize time zones
+  //   var androidSettings = AndroidInitializationSettings('app_icon');
 
-    var initializationSettings = InitializationSettings(
-      android: androidSettings,
-    );
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
-  }
+  //   var initializationSettings = InitializationSettings(
+  //     android: androidSettings,
+  //   );
+  //   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  // }
 
-  // Schedule a notification
-  Future<void> _scheduleNotification({
-    required int hour,
-    required int minute,
-    required String medication,
-  }) async {
-    var time = Time(hour, minute, 0); // Specify the time for the notification
+  // // Schedule a notification
+  // Future<void> _scheduleNotification({
+  //   required int hour,
+  //   required int minute,
+  //   required String medication,
+  // }) async {
+  //   var time = Time(hour, minute, 0); // Specify the time for the notification
 
-    var androidDetails = AndroidNotificationDetails(
-      'medication_channel',
-      'Medication Notifications',
-      channelDescription: 'Channel for medication reminders',
-      importance: Importance.high,
-      priority: Priority.high,
-      ticker: 'ticker',
-    );
+  //   var androidDetails = AndroidNotificationDetails(
+  //     'medication_channel',
+  //     'Medication Notifications',
+  //     channelDescription: 'Channel for medication reminders',
+  //     importance: Importance.high,
+  //     priority: Priority.high,
+  //     ticker: 'ticker',
+  //   );
 
-    var notificationDetails = NotificationDetails(android: androidDetails);
+  //   var notificationDetails = NotificationDetails(android: androidDetails);
 
-    await flutterLocalNotificationsPlugin.zonedSchedule(
-      0,
-      'Time to take your medication',
-      'It\'s time to take your $medication.',
-      _nextInstanceOfTime(time), // Schedule for the next time
-      notificationDetails,
-      androidAllowWhileIdle: true,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.wallClockTime,
-    );
-  }
+  //   await flutterLocalNotificationsPlugin.zonedSchedule(
+  //     0,
+  //     'Time to take your medication',
+  //     'It\'s time to take your $medication.',
+  //     _nextInstanceOfTime(time), // Schedule for the next time
+  //     notificationDetails,
+  //     androidAllowWhileIdle: true,
+  //     uiLocalNotificationDateInterpretation:
+  //         UILocalNotificationDateInterpretation.wallClockTime,
+  //   );
+  // }
 
-  // Helper function to get the next instance of a given time
-  tz.TZDateTime _nextInstanceOfTime(Time time) {
-    final now = tz.TZDateTime.now(tz.local);
-    tz.TZDateTime scheduledDate = tz.TZDateTime(
-      tz.local,
-      now.year,
-      now.month,
-      now.day,
-      time.hour,
-      time.minute,
-      0,
-    );
-    // If the time has already passed today, schedule it for tomorrow
-    if (scheduledDate.isBefore(now)) {
-      scheduledDate = scheduledDate.add(Duration(days: 1));
-    }
-    return scheduledDate;
-  }
+  // // Helper function to get the next instance of a given time
+  // tz.TZDateTime _nextInstanceOfTime(Time time) {
+  //   final now = tz.TZDateTime.now(tz.local);
+  //   tz.TZDateTime scheduledDate = tz.TZDateTime(
+  //     tz.local,
+  //     now.year,
+  //     now.month,
+  //     now.day,
+  //     time.hour,
+  //     time.minute,
+  //     0,
+  //   );
+  //   // If the time has already passed today, schedule it for tomorrow
+  //   if (scheduledDate.isBefore(now)) {
+  //     scheduledDate = scheduledDate.add(Duration(days: 1));
+  //   }
+  //   return scheduledDate;
+  // }
 
-  void showSimpleNotification() async {
-    var androidPlatformChannelSpecifics = AndroidNotificationDetails(
-      'your_channel_id',
-      'your_channel_name',
+  // void showSimpleNotification() async {
+  //   var androidPlatformChannelSpecifics = AndroidNotificationDetails(
+  //     'your_channel_id',
+  //     'your_channel_name',
 
-      importance: Importance.max,
-      priority: Priority.high,
-      ticker: 'ticker',
-    );
+  //     importance: Importance.max,
+  //     priority: Priority.high,
+  //     ticker: 'ticker',
+  //   );
 
-    var platformChannelSpecifics = NotificationDetails(
-      android: androidPlatformChannelSpecifics,
-    );
-    await flutterLocalNotificationsPlugin.show(
-      0,
-      'Hello!',
-      'This is a simple notification.',
-      platformChannelSpecifics,
-    );
-  }
+  //   var platformChannelSpecifics = NotificationDetails(
+  //     android: androidPlatformChannelSpecifics,
+  //   );
+  //   await flutterLocalNotificationsPlugin.show(
+  //     0,
+  //     'Hello!',
+  //     'This is a simple notification.',
+  //     platformChannelSpecifics,
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -187,6 +185,15 @@ class _HomePageState extends State<HomePage> {
                 Navigator.pushNamed(context, '/home_page');
               },
             ),
+
+            ListTile(
+              leading: Icon(Icons.medical_services_outlined),
+              title: Text('Doctors'),
+              onTap: () {
+                Navigator.pushNamed(context, '/doctor_details_page');
+              },
+            ),
+
             ListTile(
               leading: Icon(Icons.settings),
               title: Text('Settings'),
@@ -194,6 +201,14 @@ class _HomePageState extends State<HomePage> {
                 Navigator.pushNamed(context, '/settings');
               },
             ),
+            ListTile(
+              leading: Icon(Icons.calendar_month_rounded),
+              title: Text('Calender'),
+              onTap: () {
+                Navigator.pushNamed(context, '/calender_page');
+              },
+            ),
+
             ListTile(
               leading: Icon(Icons.logout),
               title: Text('Logout'),
@@ -293,67 +308,58 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 SizedBox(height: 20),
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: [
-                    CustomButton(
-                      label: 'Medication',
-                      onTap: () {
-                        Navigator.pushNamed(context, '/medications');
-                      },
-                    ),
-                    CustomButton(
-                      label: 'Details',
-                      onTap: () {
-                        Navigator.pushNamed(context, '/doctor_details_page');
-                      },
-                    ),
-                    CustomButton(
-                      label: 'Symptoms',
-                      onTap: () {
-                        Navigator.pushNamed(context, '/symptoms');
-                      },
-                    ),
-                    CustomButton(
-                      label: 'History',
-                      onTap: () {
-                        Navigator.pushNamed(context, '/symptomshistory');
-                      },
-                    ),
-                    CustomButton(
-                      label: 'Prescriptions',
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (context) => PrescriptionPage(
-                                  prescription: _prescriptions,
-                                ),
-                          ),
-                        );
-                      },
-                    ),
-                    CustomButton(
-                      label: 'calender',
-                      onTap: () {
-                        Navigator.pushNamed(context, '/calender_page');
-                      },
-                    ),
-                    CustomButton(
-                      label: 'Appointments',
-                      onTap: () {
-                        Navigator.pushNamed(context, '/appointment_page');
-                      },
-                    ),
-                    CustomButton(
-                      label: 'Doctor',
-                      onTap: () {
-                        Navigator.pushNamed(context, '/doctors_home_page');
-                      },
-                    ),
-                  ],
+                Center(
+                  child: Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: [
+                      CustomButton(
+                        label: 'Medication',
+                        onTap: () {
+                          Navigator.pushNamed(context, '/medications');
+                        },
+                      ),
+
+                      CustomButton(
+                        label: 'Symptoms',
+                        onTap: () {
+                          Navigator.pushNamed(context, '/symptoms');
+                        },
+                      ),
+                      CustomButton(
+                        label: 'History',
+                        onTap: () {
+                          Navigator.pushNamed(context, '/symptomshistory');
+                        },
+                      ),
+                      CustomButton(
+                        label: 'Prescriptions',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => PrescriptionPage(
+                                    prescription: _prescriptions,
+                                  ),
+                            ),
+                          );
+                        },
+                      ),
+                      CustomButton(
+                        label: 'Appointments',
+                        onTap: () {
+                          Navigator.pushNamed(context, '/appointment_page');
+                        },
+                      ),
+                      CustomButton(
+                        label: 'Diagnoses',
+                        onTap: () {
+                          Navigator.pushNamed(context, '/diagnoses');
+                        },
+                      ),
+                    ],
+                  ),
                 ),
 
                 SizedBox(height: 20),
@@ -369,7 +375,7 @@ class _HomePageState extends State<HomePage> {
 
                 // This goes in your widget build method:
                 FutureBuilder<List<PrescriptionMedication>>(
-                  future: _medications, // Your async data source
+                  future: _prescribedMedications, // Your async data source
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());

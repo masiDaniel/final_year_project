@@ -49,12 +49,29 @@ class CalendarScreenState extends State<CalendarScreen> {
   }
 
   // Add event to the selected day
-  void _addEvent(DateTime day, String eventTitle, Color eventColor) {
+  void _addEvent(
+    DateTime day,
+    String title,
+    String description,
+    String location,
+    DateTime startTime,
+    DateTime endTime,
+    Color color,
+  ) {
     final normalizedDay = _normalizeDate(day);
     if (_events[normalizedDay] == null) {
       _events[normalizedDay] = [];
     }
-    _events[normalizedDay]!.add(Event(eventTitle, eventColor));
+    _events[normalizedDay]!.add(
+      Event(
+        title: title,
+        description: description,
+        color: color,
+        startTime: startTime,
+        endTime: endTime,
+        location: location,
+      ),
+    );
     _selectedEvents.value = _getEventsForDay(normalizedDay);
     setState(() {});
   }
@@ -69,44 +86,100 @@ class CalendarScreenState extends State<CalendarScreen> {
     );
 
     if (selectedDate != null) {
-      // Prompt the user to enter an event name
-      String eventName = await _showEventNameDialog();
-      if (eventName.isNotEmpty) {
-        // Add the event to the selected date
-        _addEvent(selectedDate, eventName, Colors.blue);
-      }
+      // Open dialog to add the event
+      await _showEventDetailsDialog(selectedDate);
     }
   }
 
-  // Show a dialog to enter the event name
-  Future<String> _showEventNameDialog() async {
-    TextEditingController eventController = TextEditingController();
-    String eventName = '';
+  // Show a dialog to enter the event details including appointment time and location
+  Future<String?> _showEventDetailsDialog(DateTime selectedDate) async {
+    TextEditingController eventTitleController = TextEditingController();
+    TextEditingController eventDescriptionController = TextEditingController();
+    TextEditingController eventLocationController = TextEditingController();
+    DateTime? startTime;
+    DateTime? endTime;
+
+    // DateTime pickers for start and end times
+    Future<void> _pickTime(BuildContext context, bool isStartTime) async {
+      final TimeOfDay? time = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
+      if (time != null) {
+        DateTime selected = DateTime(
+          selectedDate.year,
+          selectedDate.month,
+          selectedDate.day,
+          time.hour,
+          time.minute,
+        );
+        if (isStartTime) {
+          startTime = selected;
+        } else {
+          endTime = selected;
+        }
+      }
+    }
 
     return await showDialog<String>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('Enter Event Name'),
-              content: TextField(
-                controller: eventController,
-                decoration: InputDecoration(hintText: 'Event name'),
-                onChanged: (value) {
-                  eventName = value;
-                },
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Enter Event Details'),
+          content: Column(
+            children: [
+              TextField(
+                controller: eventTitleController,
+                decoration: InputDecoration(hintText: 'Event title'),
               ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(eventController.text);
-                  },
-                  child: Text('Save'),
-                ),
-              ],
-            );
-          },
-        ) ??
-        ''; // Default to empty if user cancels
+              TextField(
+                controller: eventDescriptionController,
+                decoration: InputDecoration(hintText: 'Event description'),
+              ),
+              TextField(
+                controller: eventLocationController,
+                decoration: InputDecoration(hintText: 'Location'),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  ElevatedButton(
+                    onPressed: () => _pickTime(context, true),
+                    child: Text('Pick Start Time'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => _pickTime(context, false),
+                    child: Text('Pick End Time'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                if (eventTitleController.text.isNotEmpty &&
+                    startTime != null &&
+                    endTime != null) {
+                  // Add event with all details
+                  _addEvent(
+                    selectedDate,
+                    eventTitleController.text,
+                    eventDescriptionController.text,
+                    eventLocationController.text,
+                    startTime!,
+                    endTime!,
+                    Colors.blue,
+                  );
+                  Navigator.of(context).pop();
+                }
+              },
+              child: Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -144,6 +217,11 @@ class CalendarScreenState extends State<CalendarScreen> {
                           .map(
                             (event) => ListTile(
                               title: Text(event.title),
+                              subtitle: Text(
+                                'Time: ${event.startTime.hour}:${event.startTime.minute} - ${event.endTime.hour}:${event.endTime.minute}\n'
+                                'Location: ${event.location}\n'
+                                'Description: ${event.description}',
+                              ),
                               tileColor: event.color,
                             ),
                           )
@@ -157,7 +235,7 @@ class CalendarScreenState extends State<CalendarScreen> {
             child: ElevatedButton(
               onPressed: () {
                 // Add event to the currently focused day
-                _addEvent(_focusedDay, "New Event", Colors.blue);
+                _selectDateAndAddEvent();
               },
               child: Text("Add Event to ${_focusedDay.toLocal()}"),
             ),
@@ -177,7 +255,18 @@ class CalendarScreenState extends State<CalendarScreen> {
 
 class Event {
   final String title;
+  final String description;
   final Color color;
+  final DateTime startTime;
+  final DateTime endTime;
+  final String location;
 
-  Event(this.title, this.color);
+  Event({
+    required this.title,
+    required this.description,
+    required this.color,
+    required this.startTime,
+    required this.endTime,
+    required this.location,
+  });
 }

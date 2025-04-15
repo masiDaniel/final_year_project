@@ -1,8 +1,13 @@
 import 'dart:async';
 
+import 'package:adhere_med_frontend/models/diagnosis_model.dart';
+import 'package:adhere_med_frontend/models/prescription_model.dart';
 import 'package:adhere_med_frontend/screens/all_diagnoses_page.dart';
 import 'package:adhere_med_frontend/screens/doctor_diagnosis_page.dart';
+import 'package:adhere_med_frontend/services/diagnosis_service.dart';
+import 'package:adhere_med_frontend/services/prescription_services.dart';
 import 'package:adhere_med_frontend/services/shared_prefrence_data.dart';
+import 'package:adhere_med_frontend/services/user_service.dart';
 import 'package:flutter/material.dart';
 
 class DoctorsHomePage extends StatefulWidget {
@@ -13,6 +18,9 @@ class DoctorsHomePage extends StatefulWidget {
 }
 
 class _DoctorsHomePageState extends State<DoctorsHomePage> {
+  late List<Diagnosis> diagnosesnow;
+  late List<Prescription> prescriptionnow;
+
   final PageController _pageController = PageController();
   int _currentPage = 0;
   late Timer _timer;
@@ -20,14 +28,21 @@ class _DoctorsHomePageState extends State<DoctorsHomePage> {
 
   void getUsername() async {
     final value = await TokenService.getUserName();
+    List<Diagnosis> diagnoses = await DiagnosisService().fetchDiagnoses();
+    List<Prescription> _prescriptions =
+        await PrescriptionService().fetchPrescriptions();
+
     setState(() {
       username = value;
+      diagnosesnow = diagnoses;
+      prescriptionnow = _prescriptions;
     });
   }
 
   @override
   void initState() {
     super.initState();
+
     getUsername();
 
     _timer = Timer.periodic(const Duration(seconds: 4), (Timer timer) {
@@ -52,6 +67,50 @@ class _DoctorsHomePageState extends State<DoctorsHomePage> {
   Widget build(BuildContext context) {
     final String? imageUrl = null;
     return Scaffold(
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(color: Colors.black),
+              child: Text(
+                'Welcome!',
+                style: TextStyle(color: Colors.white, fontSize: 24),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.home),
+              title: Text('Home'),
+              onTap: () {
+                Navigator.pushNamed(context, '/home_page');
+              },
+            ),
+
+            ListTile(
+              leading: Icon(Icons.settings),
+              title: Text('Settings'),
+              onTap: () {
+                Navigator.pushNamed(context, '/settings');
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.calendar_month_rounded),
+              title: Text('Calender'),
+              onTap: () {
+                Navigator.pushNamed(context, '/calender_page');
+              },
+            ),
+
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('Logout'),
+              onTap: () {
+                logout(context);
+              },
+            ),
+          ],
+        ),
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -61,14 +120,26 @@ class _DoctorsHomePageState extends State<DoctorsHomePage> {
               children: [
                 Row(
                   children: [
-                    CircleAvatar(
-                      radius: 30,
-                      backgroundColor: Colors.black,
-                      backgroundImage:
-                          imageUrl != null
-                              ? NetworkImage(imageUrl)
-                              : AssetImage('assets/images/default_profile.png')
-                                  as ImageProvider,
+                    Builder(
+                      builder:
+                          (context) => GestureDetector(
+                            onTap: () {
+                              Scaffold.of(
+                                context,
+                              ).openDrawer(); // Will open the drawer
+                            },
+                            child: CircleAvatar(
+                              radius: 30,
+                              backgroundColor: Colors.black,
+                              backgroundImage:
+                                  imageUrl != null
+                                      ? NetworkImage(imageUrl)
+                                      : AssetImage(
+                                            'assets/images/default_profile.png',
+                                          )
+                                          as ImageProvider,
+                            ),
+                          ),
                     ),
                     SizedBox(width: 10),
                     Text("hi $username"),
@@ -128,6 +199,7 @@ class _DoctorsHomePageState extends State<DoctorsHomePage> {
                     ],
                   ),
                 ),
+                const SizedBox(height: 30),
                 Text(
                   "Insights:",
                   style: TextStyle(
@@ -175,7 +247,7 @@ class _DoctorsHomePageState extends State<DoctorsHomePage> {
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   Text(
-                                    '50',
+                                    '${diagnosesnow.length}',
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 30,
@@ -214,45 +286,7 @@ class _DoctorsHomePageState extends State<DoctorsHomePage> {
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 Text(
-                                  '50',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 30,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Container(
-                      height: 80,
-                      width: 140,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        color: const Color(0xFF0D557F),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Total Patients',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ],
-                            ),
-
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Text(
-                                  '50',
+                                  '${prescriptionnow.length}',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 30,
@@ -267,6 +301,7 @@ class _DoctorsHomePageState extends State<DoctorsHomePage> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 30),
 
                 Text(
                   "Quick links:",

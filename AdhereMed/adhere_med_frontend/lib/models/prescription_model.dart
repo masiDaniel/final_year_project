@@ -5,6 +5,7 @@ class Prescription {
   final int diagnosisId;
   final int prescribedBy;
   final int prescribedTo;
+  final bool isCompleted;
 
   Prescription({
     required this.id,
@@ -13,6 +14,7 @@ class Prescription {
     required this.diagnosisId,
     required this.prescribedBy,
     required this.prescribedTo,
+    required this.isCompleted,
   });
 
   // Convert a JSON object into a Prescription object
@@ -24,6 +26,7 @@ class Prescription {
       diagnosisId: json['diagnosis'],
       prescribedBy: json['prescribed_by'],
       prescribedTo: json['prescribed_to'],
+      isCompleted: json['is_completed'],
     );
   }
 

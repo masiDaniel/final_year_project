@@ -1,3 +1,4 @@
+import 'package:adhere_med_frontend/components/env.dart';
 import 'package:adhere_med_frontend/models/doctors_model.dart';
 import 'package:adhere_med_frontend/services/doctors_service.dart';
 import 'package:flutter/material.dart';
@@ -49,27 +50,71 @@ class _DoctorListPageState extends State<DoctorListPage> {
   }
 
   Widget buildDoctorCard(Doctor doctor) {
+    final user = doctor.userDetails;
+
     return Card(
-      margin: EdgeInsets.symmetric(vertical: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+      elevation: 3,
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
-            Text('Doctor ID: ${doctor.id}', style: TextStyle(fontSize: 18)),
-            Text(
-              'License No: ${doctor.licenseNo}',
-              style: TextStyle(fontSize: 18),
+            // Profile Picture
+            CircleAvatar(
+              radius: 35,
+              backgroundImage:
+                  user.profilePic != null && user.profilePic!.isNotEmpty
+                      ? NetworkImage('$base_url${user.profilePic!}')
+                      : AssetImage('assets/images/default_avatar.png')
+                          as ImageProvider,
             ),
-            Text('User ID: ${doctor.userId}', style: TextStyle(fontSize: 18)),
-            SizedBox(height: 10),
-            Text(
-              'User Details:',
-              style: TextStyle(fontWeight: FontWeight.bold),
+            SizedBox(width: 16),
+
+            // User Info
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${user.firstName ?? ''} ${user.lastName ?? ''}'
+                            .trim()
+                            .isNotEmpty
+                        ? '${user.firstName ?? ''} ${user.lastName ?? ''}'
+                        : user.username,
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 4),
+                  if (user.phoneNumber != null && user.phoneNumber!.isNotEmpty)
+                    Text(
+                      user.phoneNumber!,
+                      style: TextStyle(color: Colors.grey[700]),
+                    ),
+                  Text(user.email, style: TextStyle(color: Colors.grey[700])),
+
+                  SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.medical_services,
+                        size: 16,
+                        color: Colors.grey,
+                      ),
+                      SizedBox(width: 4),
+                      Text(
+                        'License: ${doctor.licenseNo}',
+                        style: TextStyle(fontSize: 13),
+                      ),
+                      Spacer(),
+                      Text(
+                        user.userType,
+                        style: TextStyle(color: Colors.blueGrey),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-            Text('Username: ${doctor.userDetails.username}'),
-            Text('Email: ${doctor.userDetails.email}'),
-            Text('User Type: ${doctor.userDetails.userType}'),
           ],
         ),
       ),

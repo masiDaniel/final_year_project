@@ -52,77 +52,13 @@ class _DoctorDiagnosisPageState extends State<DoctorDiagnosisPage> {
       appBar: AppBar(title: const Text("Diagnose")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Container(
-                  height: 30,
-                  width: 150,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF85A9BD),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      "Create diagnosis",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 30),
-            CustomTextField(
-              controller: diagnosisController,
-              hintText: "Diagnosis",
-            ),
-            const SizedBox(height: 30),
-            CustomTextField(
-              controller: descriptionController,
-              hintText: "Description",
-            ),
-            const SizedBox(height: 10),
-            CustomTextField(
-              controller: patientController,
-              hintText: "Patient ID",
-            ),
-            const SizedBox(height: 10),
-            CustomTextField(
-              controller: severityController,
-              hintText: "Severity",
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Text('Follow Up Required:'),
-                Switch(
-                  value: followUpRequired,
-                  onChanged: (value) {
-                    setState(() {
-                      followUpRequired =
-                          value; // Update the value based on switch toggle
-                    });
-                  },
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 10),
-            CustomTextField(controller: notesController, hintText: "Notes"),
-            const SizedBox(height: 10),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    print("submit Prescription");
-                    submitDiagnosis();
-                  },
-                  child: Container(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
                     height: 30,
                     width: 150,
                     decoration: BoxDecoration(
@@ -131,15 +67,81 @@ class _DoctorDiagnosisPageState extends State<DoctorDiagnosisPage> {
                     ),
                     child: const Center(
                       child: Text(
-                        "Submit Prescription",
+                        "Create diagnosis",
                         style: TextStyle(color: Colors.white),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+
+              const SizedBox(height: 30),
+              CustomTextField(
+                controller: diagnosisController,
+                hintText: "Diagnosis",
+              ),
+              const SizedBox(height: 30),
+              CustomTextField(
+                controller: descriptionController,
+                hintText: "Description",
+              ),
+              const SizedBox(height: 10),
+              CustomTextField(
+                controller: patientController,
+                hintText: "Patient ID",
+              ),
+              const SizedBox(height: 10),
+              CustomTextField(
+                controller: severityController,
+                hintText: "Severity",
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Text('Follow Up Required:'),
+                  Switch(
+                    value: followUpRequired,
+                    onChanged: (value) {
+                      setState(() {
+                        followUpRequired =
+                            value; // Update the value based on switch toggle
+                      });
+                    },
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 10),
+              CustomTextField(controller: notesController, hintText: "Notes"),
+              const SizedBox(height: 10),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      print("submit Prescription");
+                      submitDiagnosis();
+                    },
+                    child: Container(
+                      height: 30,
+                      width: 150,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF85A9BD),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          "Submit Prescription",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

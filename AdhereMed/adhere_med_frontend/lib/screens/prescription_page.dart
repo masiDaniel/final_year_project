@@ -11,16 +11,6 @@ class PrescriptionPage extends StatefulWidget {
 }
 
 class _PrescriptionPageState extends State<PrescriptionPage> {
-  // Dummy data - replace with your API data
-  final prescription = {
-    "id": 1,
-    "date_prescribed": "2025-04-11T13:07:07.418491Z",
-    "instructions": "Take to the end",
-    "diagnosis": 1,
-    "prescribed_by": 2,
-    "prescribed_to": 3,
-  };
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,15 +73,6 @@ class _PrescriptionPageState extends State<PrescriptionPage> {
                       const SizedBox(height: 10),
                       infoRow("Instructions", prescription.instructions),
                       const SizedBox(height: 10),
-                      infoRow(
-                        "Diagnosis ID",
-                        prescription.diagnosisId.toString(),
-                      ),
-                      const SizedBox(height: 10),
-                      infoRow(
-                        "Prescribed To (User ID)",
-                        prescription.prescribedTo.toString(),
-                      ),
                       const SizedBox(height: 10),
                       ElevatedButton(
                         onPressed: () {

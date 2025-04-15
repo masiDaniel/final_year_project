@@ -94,4 +94,18 @@ class SymptomService {
       rethrow;
     }
   }
+
+  // Delete a diagnosis
+  Future<String> askAI(List syptomsList) async {
+    try {
+      final response = await http.delete(Uri.parse('$base_url/diagnoses/'));
+
+      if (response.statusCode != 204) {
+        throw Exception('Failed to delete diagnosis');
+      }
+      return response.body;
+    } catch (e) {
+      rethrow;
+    }
+  }
 }
