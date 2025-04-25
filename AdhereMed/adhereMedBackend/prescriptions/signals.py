@@ -12,7 +12,7 @@ def update_prescription_completion(sender, instance, **kwargs):
 
     all_completed = True
     for med in prescription.medication_items.all():  # using the related_name
-        end_date = med.created_at.date() + timedelta(days=med.duration)
+        end_date = med.created_at.date() + timedelta(days=int(med.duration))
         if today < end_date:
             all_completed = False
             break

@@ -2,6 +2,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
+
+from AImodel.predictor import predict_disease
 from .serializers import AppointmentSerializer, CustomUserSerializer, DoctorSerializer, MyTokenObtainPairSerializer, PatientSerializer, SymptomSerializer
 from .models import Appointment, CareGiver, Doctor, Patient, Symptom
 from pharmacies.models import Pharmacy
@@ -230,3 +232,34 @@ class LogoutView(APIView):
             return Response(status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class DiseasePredictionView(APIView):
+    def post(self, request):
+        try:
+            symptoms_raw = request.data.get('symptoms')  # This could be a list of strings or a string with commas
+            non_text = request.data.get('non_text_data')  # List of non-text arrays
+
+            if not symptoms_raw or not non_text:
+                return Response({'error': 'symptoms and non_text_data are required'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Clean and normalize symptoms
+            cleaned_symptoms = []
+            
+            if isinstance(symptoms_raw, str):
+                # If it's a single string like "cough, headache", split it
+                cleaned_symptoms = [s.strip().lower() for s in symptoms_raw.split(",") if s.strip()]
+            elif isinstance(symptoms_raw, list):
+                for item in symptoms_raw:
+                    if isinstance(item, str):
+                        cleaned_symptoms.extend([s.strip().lower() for s in item.split(",") if s.strip()])
+            else:
+                return Response({'error': 'Invalid symptoms format'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Now send cleaned symptoms to your prediction function
+            predictions = predict_disease(cleaned_symptoms, non_text)
+            return Response(predictions, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

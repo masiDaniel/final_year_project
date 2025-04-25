@@ -39,7 +39,7 @@ class PrescriptionMedication(models.Model):
     medication = models.ForeignKey(Medication, on_delete=models.CASCADE)
     dosage = models.CharField(max_length=100)
     frequency = models.CharField(max_length=100)
-    duration = models.IntegerField( default=1)
+    duration = models.CharField(max_length=100)
     instructions = models.TextField(blank=True, null=True)
     morning = models.BooleanField(default=False)
     afternoon = models.BooleanField(default=False)
@@ -47,6 +47,34 @@ class PrescriptionMedication(models.Model):
     
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @property
+    def is_active(self):
+        end_date = self.get_end_date()
+        if end_date is None:
+            return True  # If duration is invalid or missing, assume it's active
+        return datetime.now().date() <= end_date
+
+    def get_end_date(self):
+        """
+        Extracts end date from duration.
+        Supports "X days", "X weeks", and "X months" (approx 30 days/month).
+        have it support inters in days 
+        """
+        match = re.match(r'(\d+)\s*(day|week|month)s?', self.duration)
+        if not match:
+            return None
+        num, unit = int(match.group(1)), match.group(2)
+ 
+        if unit == 'day':
+            delta = timedelta(days=num)
+        elif unit == 'week':
+            delta = timedelta(weeks=num)
+        elif unit == 'month':
+            delta = timedelta(days=30 * num)  # approximate
+        else:
+            return None
+ 
+        return (self.created_at + delta).date()
     
     def __str__(self):
         return f"{self.dosage}"
