@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:adhere_med_frontend/components/env.dart';
+import 'package:adhere_med_frontend/models/ai_diagnosis.dart';
 import 'package:adhere_med_frontend/models/diagnosis_model.dart';
 import 'package:adhere_med_frontend/models/symptom_model.dart';
 import 'package:adhere_med_frontend/services/shared_prefrence_data.dart';
@@ -47,9 +48,13 @@ class SymptomService {
   // Create a new diagnosis
   Future<Symptom> createSymptom(Symptom symptom) async {
     try {
+      final token = await TokenService.getAccessToken();
       final response = await http.post(
         Uri.parse('$base_url/core/symptoms/'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
         body: jsonEncode(symptom.toJson()),
       );
 
@@ -95,17 +100,27 @@ class SymptomService {
     }
   }
 
-  // Delete a diagnosis
-  Future<String> askAI(List syptomsList) async {
-    try {
-      final response = await http.delete(Uri.parse('$base_url/diagnoses/'));
+  // Method to send symptoms to the backend
+  Future<List<AIDiagnosis>> askAI(List<String> symptoms) async {
+    final response = await http.post(
+      Uri.parse('$base_url/core/predict/'), // Replace with your endpoint
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'symptoms': symptoms,
+        'non_text_data': [
+          // Add the necessary non-text data here (e.g., age, gender, etc.)
+          [30, 1, 0, 1, 0, 0, 1], // Example data, replace as needed
+        ],
+      }),
+    );
 
-      if (response.statusCode != 204) {
-        throw Exception('Failed to delete diagnosis');
-      }
-      return response.body;
-    } catch (e) {
-      rethrow;
+    print(json.decode(response.body));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> responseData = json.decode(response.body);
+      return responseData.map((item) => AIDiagnosis.fromJson(item)).toList();
+    } else {
+      throw Exception('Failed to load data');
     }
   }
 }

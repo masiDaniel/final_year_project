@@ -1,3 +1,4 @@
+import 'package:adhere_med_frontend/models/ai_diagnosis.dart';
 import 'package:adhere_med_frontend/models/symptom_model.dart';
 import 'package:adhere_med_frontend/services/symptom_service.dart';
 import 'package:flutter/material.dart';
@@ -83,74 +84,71 @@ class _SymptomsHistoryState extends State<SymptomsHistory> {
 
           final grouped = groupSymptoms(snapshot.data!);
 
-          return ListView(
+          return ListView.builder(
             padding: const EdgeInsets.all(16.0),
-            children:
-                grouped.entries.map((entry) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        entry.key,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      ...entry.value.map((symptom) {
-                        return Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+            itemCount: grouped.length,
+            itemBuilder: (context, index) {
+              final entry = grouped.entries.elementAt(index);
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    entry.key,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  ...entry.value.map((symptom) {
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Column(
                           children: [
-                            Column(
+                            Container(
+                              width: 12,
+                              height: 12,
+                              decoration: const BoxDecoration(
+                                color: Colors.blue,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            Container(width: 2, height: 40, color: Colors.blue),
+                          ],
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Container(
-                                  width: 12,
-                                  height: 12,
-                                  decoration: const BoxDecoration(
-                                    color: Colors.blue,
-                                    shape: BoxShape.circle,
-                                  ),
+                                Text(
+                                  symptom.mainSymptom,
+                                  style: const TextStyle(fontSize: 16),
                                 ),
-                                Container(
-                                  width: 2,
-                                  height: 40,
-                                  color: Colors.blue,
+                                const SizedBox(height: 6),
+                                Text(
+                                  DateFormat(
+                                    'yyyy-MM-dd HH:mm',
+                                  ).format(symptom.createdAt),
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[600],
+                                  ),
                                 ),
                               ],
                             ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.only(bottom: 20),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      symptom.mainSymptom,
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      DateFormat(
-                                        'yyyy-MM-dd HH:mm',
-                                      ).format(symptom.createdAt),
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.grey[600],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      }).toList(),
-                      const SizedBox(height: 20),
-                    ],
-                  );
-                }).toList(),
+                          ),
+                        ),
+                      ],
+                    );
+                  }).toList(),
+                  const SizedBox(height: 20),
+                ],
+              );
+            },
           );
         },
       ),
@@ -169,23 +167,28 @@ class AskAIBottomSheet extends StatefulWidget {
 class _AskAIBottomSheetState extends State<AskAIBottomSheet> {
   final Set<Symptom> selected = {};
   bool loading = false;
-  String? response;
+  AIDiagnosis? response;
 
   Future<void> _sendToAI() async {
     setState(() => loading = true);
     try {
       // Prepare symptom texts
       final symptomsList = selected.map((s) => s.mainSymptom).toList();
-
+      print("this is the request");
+      // Send the request to the backend API and get the response
       final result = await SymptomService().askAI(symptomsList);
+      print('this is the result ${result}');
+      print("this is the result");
 
       setState(() {
-        response = result;
+        response =
+            result.isNotEmpty ? result[0] : null; // Display the first result
         loading = false;
       });
     } catch (e) {
+      print("Error: $e");
       setState(() {
-        response = 'Failed to get response from Adhere AI.';
+        response = null;
         loading = false;
       });
     }
@@ -223,7 +226,6 @@ class _AskAIBottomSheetState extends State<AskAIBottomSheet> {
           ElevatedButton.icon(
             onPressed: selected.isEmpty || loading ? null : _sendToAI,
             icon: const Icon(Icons.send),
-
             label:
                 loading
                     ? const SizedBox(
@@ -238,12 +240,87 @@ class _AskAIBottomSheetState extends State<AskAIBottomSheet> {
             const Divider(),
             Text(
               'Adhere AI says:',
-              style: Theme.of(context).textTheme.titleMedium,
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 8),
-            Text(response!),
+            const SizedBox(height: 16),
+            _buildInfoRow('Predicted Disease', response!.predictedDisease),
+            _buildInfoRow('Other Symptoms', response!.otherSymptoms),
+            _buildInfoRow('Suggested Cures', response!.suggestedCures),
+            _buildInfoRow('Doctor to Visit', response!.doctorToVisit),
+            _buildInfoRow('Risk Level', response!.riskLevel),
           ],
         ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Container(
+        decoration: BoxDecoration(
+          color:
+              isDarkMode
+                  ? Colors.grey[850]
+                  : Colors.white, // Adjust for light/dark theme
+          borderRadius: BorderRadius.circular(
+            12.0,
+          ), // Rounded corners for a modern look
+          boxShadow: [
+            BoxShadow(
+              color:
+                  isDarkMode
+                      ? Colors.black.withOpacity(0.2)
+                      : Colors.grey.withOpacity(0.1), // Shadow based on theme
+              blurRadius: 6.0, // Soft shadow for elevation effect
+              offset: Offset(0, 2), // Slight offset for shadow
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.all(
+          16.0,
+        ), // Padding inside container for spacing
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Label styling with bold and clear font
+            Text(
+              '$label:',
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                fontWeight: FontWeight.bold, // Bold label for emphasis
+                fontFamily: 'Roboto', // Clean, professional font
+                color:
+                    isDarkMode
+                        ? Colors.white
+                        : Colors.black, // Adjust color for dark/light theme
+              ),
+            ),
+            const SizedBox(width: 8),
+            // Value text styling, adjusted for readability
+            Expanded(
+              child: Text(
+                value,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontFamily: 'Roboto', // Consistent font usage
+                  fontWeight: FontWeight.w400, // Regular weight for text
+                  color:
+                      isDarkMode
+                          ? Colors.white70
+                          : Colors.black.withOpacity(
+                            0.7,
+                          ), // Light/Dark mode text color
+                  height: 1.4, // Adequate line height for readability
+                ),
+                textAlign:
+                    TextAlign.justify, // Text alignment for neat presentation
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

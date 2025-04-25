@@ -6,7 +6,7 @@ import 'package:adhere_med_frontend/services/shared_prefrence_data.dart';
 import 'package:http/http.dart' as http;
 
 class MedicationService {
-  final String apiUrl = "$base_url/core/doctor/";
+  final String apiUrl = "$base_url/medication/medications/";
 
   Future<List<Medication>> getMedication() async {
     final token = await TokenService.getAccessToken();

@@ -4,6 +4,7 @@ import 'package:adhere_med_frontend/components/custom_button.dart';
 import 'package:adhere_med_frontend/models/medication_model.dart';
 import 'package:adhere_med_frontend/models/prescribed_medication.dart';
 import 'package:adhere_med_frontend/models/prescription_model.dart';
+import 'package:adhere_med_frontend/screens/medications_page_1.dart';
 import 'package:adhere_med_frontend/screens/prescription_page.dart';
 import 'package:adhere_med_frontend/services/medication_service.dart';
 import 'package:adhere_med_frontend/services/prescribed_medications_service.dart';
@@ -25,6 +26,8 @@ class _HomePageState extends State<HomePage> {
   late Future<List<Medication>> _medications;
   late Future<List<PrescriptionMedication>> _prescribedMedications;
   late Future<List<Prescription>> _prescriptions;
+  late List<Medication> medicationsList = [];
+  bool loading = true;
 
   @override
   void initState() {
@@ -33,6 +36,7 @@ class _HomePageState extends State<HomePage> {
     _medications = MedicationService().getMedication();
     _prescribedMedications = PrescriptionMedicationService.fetchAll();
     _prescriptions = PrescriptionService().fetchPrescriptions();
+    _fetchMedications();
 
     _timer = Timer.periodic(const Duration(seconds: 4), (Timer timer) {
       _currentPage = (_currentPage + 1) % 2;
@@ -43,6 +47,63 @@ class _HomePageState extends State<HomePage> {
         curve: Curves.easeInOut,
       );
     });
+  }
+
+  // Function to fetch medications and update state
+  Future<void> _fetchMedications() async {
+    try {
+      List<Medication> fetchedMedications =
+          await MedicationService().getMedication();
+      setState(() {
+        medicationsList = fetchedMedications;
+        loading = false; // Set loading to false after data is fetched
+      });
+    } catch (e) {
+      setState(() {
+        loading = false; // Set loading to false in case of an error
+      });
+      print("Error fetching medications: $e");
+    }
+  }
+
+  String getMedicationNameById(int medicationId) {
+    // Assuming _medications is populated with a list of Medication objects
+    List<Medication> medications = medicationsList;
+    print('these are the medications $medications');
+    print('this is the id $medicationId');
+
+    // Find the medication that matches the given ID
+    final medication = medications.firstWhere(
+      (medication) => medication.id == medicationId,
+      orElse:
+          () => Medication(
+            id: medicationId, // The ID you are looking for
+            name: 'Medication Name', // Name of the medication
+            genericName: 'Generic Name', // Optional: Generic Name
+            brandName: 'Brand Name', // Optional: Brand Name
+            description:
+                'This is a description of the medication', // Description is required
+            dosageForm: 'Tablet', // Dosage form is required
+            strength: '500mg', // Strength is required
+            routeOfAdministration:
+                'Oral', // Route of administration is required
+            sideEffects: 'Nausea, dizziness', // Side effects are required
+            interactions:
+                'May interact with alcohol', // Drug interactions are required
+            contraindications:
+                'Not recommended for pregnant women', // Contraindications are required
+            manufacturer: 'PharmaCorp', // Optional: Manufacturer
+            approvalDate: '2021-01-01', // Required: Approval date
+            expiryDate: '2023-01-01', // Required: Expiry date
+            requiresPrescription: true, // Required: Prescription needed
+            stockQuantity: 100, // Required: Stock quantity
+            price: '50.00', // Required: Price
+            createdAt: '2021-01-01', // Required: Created date
+            updatedAt: '2021-12-01', // Required: Updated date
+          ), // Default value if no match
+    );
+
+    return medication.name!;
   }
 
   String getCurrentTimeOfDay() {
@@ -80,88 +141,6 @@ class _HomePageState extends State<HomePage> {
     _timer.cancel();
     super.dispose();
   }
-
-  // // Initialize notification settings
-  // void _initializeNotifications() async {
-  //   tz.initializeTimeZones(); // Initialize time zones
-  //   var androidSettings = AndroidInitializationSettings('app_icon');
-
-  //   var initializationSettings = InitializationSettings(
-  //     android: androidSettings,
-  //   );
-  //   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
-  // }
-
-  // // Schedule a notification
-  // Future<void> _scheduleNotification({
-  //   required int hour,
-  //   required int minute,
-  //   required String medication,
-  // }) async {
-  //   var time = Time(hour, minute, 0); // Specify the time for the notification
-
-  //   var androidDetails = AndroidNotificationDetails(
-  //     'medication_channel',
-  //     'Medication Notifications',
-  //     channelDescription: 'Channel for medication reminders',
-  //     importance: Importance.high,
-  //     priority: Priority.high,
-  //     ticker: 'ticker',
-  //   );
-
-  //   var notificationDetails = NotificationDetails(android: androidDetails);
-
-  //   await flutterLocalNotificationsPlugin.zonedSchedule(
-  //     0,
-  //     'Time to take your medication',
-  //     'It\'s time to take your $medication.',
-  //     _nextInstanceOfTime(time), // Schedule for the next time
-  //     notificationDetails,
-  //     androidAllowWhileIdle: true,
-  //     uiLocalNotificationDateInterpretation:
-  //         UILocalNotificationDateInterpretation.wallClockTime,
-  //   );
-  // }
-
-  // // Helper function to get the next instance of a given time
-  // tz.TZDateTime _nextInstanceOfTime(Time time) {
-  //   final now = tz.TZDateTime.now(tz.local);
-  //   tz.TZDateTime scheduledDate = tz.TZDateTime(
-  //     tz.local,
-  //     now.year,
-  //     now.month,
-  //     now.day,
-  //     time.hour,
-  //     time.minute,
-  //     0,
-  //   );
-  //   // If the time has already passed today, schedule it for tomorrow
-  //   if (scheduledDate.isBefore(now)) {
-  //     scheduledDate = scheduledDate.add(Duration(days: 1));
-  //   }
-  //   return scheduledDate;
-  // }
-
-  // void showSimpleNotification() async {
-  //   var androidPlatformChannelSpecifics = AndroidNotificationDetails(
-  //     'your_channel_id',
-  //     'your_channel_name',
-
-  //     importance: Importance.max,
-  //     priority: Priority.high,
-  //     ticker: 'ticker',
-  //   );
-
-  //   var platformChannelSpecifics = NotificationDetails(
-  //     android: androidPlatformChannelSpecifics,
-  //   );
-  //   await flutterLocalNotificationsPlugin.show(
-  //     0,
-  //     'Hello!',
-  //     'This is a simple notification.',
-  //     platformChannelSpecifics,
-  //   );
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -373,9 +352,8 @@ class _HomePageState extends State<HomePage> {
                 ),
                 SizedBox(height: 20),
 
-                // This goes in your widget build method:
                 FutureBuilder<List<PrescriptionMedication>>(
-                  future: _prescribedMedications, // Your async data source
+                  future: _prescribedMedications,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
@@ -400,16 +378,87 @@ class _HomePageState extends State<HomePage> {
                                   return Padding(
                                     padding: const EdgeInsets.only(right: 10.0),
                                     child: Container(
-                                      height: 90,
-                                      width: 90,
+                                      height: 250,
+                                      width: 160,
                                       decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(8),
-                                        color: const Color(0xFFD9D9D9),
+                                        borderRadius: BorderRadius.circular(12),
+                                        color: const Color(
+                                          0xFF0D557F,
+                                        ), // Darker blue for white text contrast
                                       ),
-                                      child: Center(
-                                        child: Text(
-                                          '${med.medication}',
-                                          textAlign: TextAlign.center,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(12.0),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Medication:',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            Text(
+                                              getMedicationNameById(
+                                                med.medication,
+                                              ),
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                            ),
+                                            SizedBox(height: 8),
+                                            Text(
+                                              'Frequency:',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            Text(
+                                              '${med.frequency}',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                            ),
+                                            SizedBox(height: 8),
+                                            Text(
+                                              'Dosage:',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            Text(
+                                              '${med.dosage}',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                            ),
+                                            SizedBox(height: 8),
+                                            Text(
+                                              'Instructions:',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            Text(
+                                              '${med.instructions}',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 2,
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ),
@@ -449,9 +498,8 @@ class _HomePageState extends State<HomePage> {
 
                     // Use the snapshot data here
                     final prescriptions = snapshot.data!;
-
                     return Container(
-                      height: 300,
+                      height: 220,
                       width: double.infinity,
                       decoration: BoxDecoration(
                         color: Color(0xFFD9D9D9),
@@ -460,15 +508,28 @@ class _HomePageState extends State<HomePage> {
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12.0,
+                            vertical: 16.0,
+                          ),
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
                             children:
                                 prescriptions.map((prescription) {
                                   return Padding(
                                     padding: const EdgeInsets.only(right: 15.0),
                                     child: GestureDetector(
                                       onTap: () {
+                                        final filteredMeds =
+                                            _prescribedMedications.then(
+                                              (meds) =>
+                                                  meds
+                                                      .where(
+                                                        (med) =>
+                                                            med.prescription ==
+                                                            prescription.id,
+                                                      )
+                                                      .toList(),
+                                            );
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
@@ -476,40 +537,56 @@ class _HomePageState extends State<HomePage> {
                                                 (context) => MedicationsPage1(
                                                   prescriptionId:
                                                       prescription.id,
+                                                  prescribedMedications:
+                                                      filteredMeds,
                                                 ),
                                           ),
                                         );
                                       },
                                       child: Container(
-                                        height: 250,
-                                        width: 170,
+                                        height: 160,
+                                        width: 180,
                                         decoration: BoxDecoration(
-                                          color: Colors.blue,
+                                          color: const Color(0xFF0D557F),
                                           borderRadius: BorderRadius.circular(
                                             16,
                                           ),
-                                        ),
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              'Prescription ${prescription.id}',
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 10),
-                                            Text(
-                                              prescription.instructions,
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                color: Colors.white,
-                                              ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black12,
+                                              blurRadius: 6,
+                                              offset: Offset(0, 3),
                                             ),
                                           ],
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(12.0),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Prescription #${prescription.id}',
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 10),
+                                              Text(
+                                                prescription.instructions,
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  color: Colors.white,
+                                                ),
+                                                maxLines: 3,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ),

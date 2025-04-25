@@ -9,6 +9,7 @@ class DiagnosisService {
   Future<List<Diagnosis>> fetchDiagnoses() async {
     try {
       final token = await TokenService.getAccessToken();
+
       final response = await http.get(
         Uri.parse('$base_url/prescription/diagnosis/'),
         headers: {
